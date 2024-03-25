@@ -6,7 +6,9 @@ import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
 import net.kissenpvp.core.api.user.rank.Rank;
+import net.kissenpvp.paper.api.networking.client.entity.PaperPlayerClient;
 import net.kissenpvp.paper.api.user.event.VisualChangeEvent;
+import net.kissenpvp.paper.api.user.rank.PaperRank;
 import net.kissenpvp.visual.entity.KissenVisualEntity;
 import net.kissenpvp.visual.entity.KissenVisualPlayer;
 import net.kissenpvp.visual.playersettings.KissenPlayPingSound;
@@ -67,8 +69,8 @@ public class Visual extends JavaPlugin {
         pluginManager.registerTranslation("visual.tab.footer", new MessageFormat("\n " + split + "\nYour Ping: {0}ms"), this);
     }
 
-    public @NotNull KissenVisualRank getRank(@NotNull Rank entity) {
-        return new KissenVisualRank(entity);
+    public @NotNull KissenVisualRank getRank(@NotNull PaperRank rank) {
+        return new KissenVisualRank(rank);
     }
 
     public @NotNull KissenVisualEntity<? extends ServerEntity> getEntity(@NotNull ServerEntity entity) {
@@ -118,8 +120,8 @@ public class Visual extends JavaPlugin {
      * @see DefaultSystemPrefix
      */
     private @NotNull String getPersonalisedPrefix(@NotNull ServerEntity serverEntity) {
-        if (serverEntity instanceof PlayerClient<?, ?, ?> player) {
-            return player.getUserSetting(KissenSystemPrefix.class).getValue();
+        if (serverEntity instanceof PaperPlayerClient player) {
+            return player.getSetting(KissenSystemPrefix.class).getValue();
         }
         return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSystemPrefix.class);
     }

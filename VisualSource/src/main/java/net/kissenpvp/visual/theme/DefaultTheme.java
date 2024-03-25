@@ -20,15 +20,11 @@ package net.kissenpvp.visual.theme;
 
 import net.kissenpvp.core.api.config.ConfigurationImplementation;
 import net.kissenpvp.visual.theme.settings.*;
-import net.kyori.adventure.text.BuildableComponent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
-import visual.theme.settings.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -92,7 +88,7 @@ public class DefaultTheme implements Theme
     }
 
 
-    private @NotNull Component transformComponent(@NotNull Component component, @NotNull TextColor fallBack)
+    private @NotNull Component transformComponent(@NotNull ComponentLike component, @NotNull TextColor fallBack)
     {
         return Component.empty().append(component).toBuilder().mapChildrenDeep(buildableComponent -> transformSpecifiedComponent(buildableComponent, fallBack)).asComponent();
     }
@@ -125,15 +121,15 @@ public class DefaultTheme implements Theme
 
     @NotNull
     private TranslatableComponent transformTranslatableComponent(@NotNull TranslatableComponent translatableComponent, @NotNull TextColor fallBack) {
-        Function<Component, Component> argumentMapper = argument -> transformComponent(argument, highlightColor());
-        List<Component> transformedArgs = translatableComponent.args().stream().map(argumentMapper).toList();
+        Function<TranslationArgument, Component> argumentMapper = argument -> transformComponent(argument, highlightColor());
+        List<Component> transformedArgs = translatableComponent.arguments().stream().map(argumentMapper).toList();
 
         TextColor textColor = Objects.requireNonNullElse(translatableComponent.color(), fallBack);
         if(!textColor.equals(fallBack))
         {
             textColor = getPersonalColorByCode(textColor.value());
         }
-        return translatableComponent.color(textColor).args(transformedArgs.toArray(new Component[0]));
+        return translatableComponent.color(textColor).arguments(transformedArgs.toArray(new Component[0]));
     }
 
     @NotNull private BuildableComponent<?, ?> legacyColorCodeResolver(@NotNull BuildableComponent<?, ?> buildableComponent)
