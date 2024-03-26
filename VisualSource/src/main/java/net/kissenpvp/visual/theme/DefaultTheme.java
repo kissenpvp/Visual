@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 KissenPvP
+ * Copyright (C) 2024 KissenPvP
  *
  * This program is licensed under the Apache License, Version 2.0.
  *
@@ -19,6 +19,8 @@
 package net.kissenpvp.visual.theme;
 
 import net.kissenpvp.core.api.config.ConfigurationImplementation;
+import net.kissenpvp.visual.api.theme.Theme;
+import net.kissenpvp.visual.api.theme.ThemeProvider;
 import net.kissenpvp.visual.theme.settings.*;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.format.TextColor;
@@ -29,36 +31,30 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Function;
 
-public class DefaultTheme implements Theme
-{
+public class DefaultTheme implements Theme {
 
     @Override
-    public @NotNull TextColor getPrimaryAccentColor()
-    {
+    public @NotNull TextColor getPrimaryAccentColor() {
         return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultPrimaryColor.class);
     }
 
     @Override
-    public @NotNull TextColor getSecondaryAccentColor()
-    {
+    public @NotNull TextColor getSecondaryAccentColor() {
         return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSecondaryColor.class);
     }
 
     @Override
-    public @NotNull TextColor getGeneralColor()
-    {
+    public @NotNull TextColor getGeneralColor() {
         return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(GeneralColor.class);
     }
 
     @Override
-    public @NotNull TextColor getEnabledColor()
-    {
+    public @NotNull TextColor getEnabledColor() {
         return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultEnabledColor.class);
     }
 
     @Override
-    public @NotNull TextColor getDisabledColor()
-    {
+    public @NotNull TextColor getDisabledColor() {
         return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultDisabledColor.class);
     }
 
@@ -71,10 +67,11 @@ public class DefaultTheme implements Theme
      * @return a new Component with the replaced colors.
      * @throws NullPointerException if the component array or any of its elements are null.
      */
-    @Override public @NotNull Component style(@NotNull Component... component)
-    {
+    @Override
+    public @NotNull Component style(@NotNull Component... component) {
         return Component.join(JoinConfiguration.noSeparators(), Arrays.stream(component).map(this::transformComponent).toList());
     }
+
     /**
      * Converts a Component by replacing its color with a personalized color based on the current color value.
      * This method retrieves the personalized color by querying the ColorProviderImplementation.
@@ -88,8 +85,7 @@ public class DefaultTheme implements Theme
     }
 
 
-    private @NotNull Component transformComponent(@NotNull ComponentLike component, @NotNull TextColor fallBack)
-    {
+    private @NotNull Component transformComponent(@NotNull ComponentLike component, @NotNull TextColor fallBack) {
         return Component.empty().append(component).toBuilder().mapChildrenDeep(buildableComponent -> transformSpecifiedComponent(buildableComponent, fallBack)).asComponent();
     }
 
@@ -102,8 +98,7 @@ public class DefaultTheme implements Theme
      * @return the transformed {@link BuildableComponent} with the personalized color.
      * @throws NullPointerException if the buildableComponent is null.
      */
-    private @NotNull BuildableComponent<?, ?> transformSpecifiedComponent(@NotNull BuildableComponent<?, ?> buildableComponent, @NotNull TextColor fallBack)
-    {
+    private @NotNull BuildableComponent<?, ?> transformSpecifiedComponent(@NotNull BuildableComponent<?, ?> buildableComponent, @NotNull TextColor fallBack) {
         if (buildableComponent instanceof TranslatableComponent translatableComponent) {
 
             return transformTranslatableComponent(translatableComponent, fallBack);
@@ -111,8 +106,7 @@ public class DefaultTheme implements Theme
 
         buildableComponent = legacyColorCodeResolver(buildableComponent);
         TextColor textColor = buildableComponent.color();
-        if (textColor != null)
-        {
+        if (textColor!=null) {
             return (BuildableComponent<?, ?>) buildableComponent.color(getPersonalColorByCode(textColor.value()));
         }
 
@@ -125,21 +119,18 @@ public class DefaultTheme implements Theme
         List<Component> transformedArgs = translatableComponent.arguments().stream().map(argumentMapper).toList();
 
         TextColor textColor = Objects.requireNonNullElse(translatableComponent.color(), fallBack);
-        if(!textColor.equals(fallBack))
-        {
+        if (!textColor.equals(fallBack)) {
             textColor = getPersonalColorByCode(textColor.value());
         }
         return translatableComponent.color(textColor).arguments(transformedArgs.toArray(new Component[0]));
     }
 
-    @NotNull private BuildableComponent<?, ?> legacyColorCodeResolver(@NotNull BuildableComponent<?, ?> buildableComponent)
-    {
+    @NotNull
+    private BuildableComponent<?, ?> legacyColorCodeResolver(@NotNull BuildableComponent<?, ?> buildableComponent) {
         Map<String, TextColor> replacements = new HashMap<>();
         String legacy = LegacyComponentSerializer.legacyAmpersand().serialize(buildableComponent);
-        for (String textPassage : legacy.split("§"))
-        {
-            if (textPassage.length() > 1)
-            {
+        for (String textPassage : legacy.split("§")) {
+            if (textPassage.length() > 1) {
                 if (legacy.startsWith(textPassage) && !textPassage.startsWith("§")) {
                     continue;
                 }
@@ -153,10 +144,8 @@ public class DefaultTheme implements Theme
             }
         }
 
-        for (Map.Entry<String, TextColor> stringTextColorEntry : replacements.entrySet())
-        {
-            buildableComponent = (BuildableComponent<?, ?>) buildableComponent.replaceText(config ->
-            {
+        for (Map.Entry<String, TextColor> stringTextColorEntry : replacements.entrySet()) {
+            buildableComponent = (BuildableComponent<?, ?>) buildableComponent.replaceText(config -> {
                 config.matchLiteral(stringTextColorEntry.getKey());
                 config.replacement(Component.text(stringTextColorEntry.getKey()).color(stringTextColorEntry.getValue()));
             });
@@ -173,28 +162,19 @@ public class DefaultTheme implements Theme
      * @return the personalized TextColor.
      * @throws NullPointerException if the ColorProviderImplementation is null.
      */
-    private @NotNull TextColor getPersonalColorByCode(int value)
-    {
-        Map<TextColor, TextColor> colorMap = Map.of(
-                ThemeProvider.primary(), getPrimaryAccentColor(),
-                ThemeProvider.secondary(), getSecondaryAccentColor(),
-                ThemeProvider.general(), getGeneralColor(),
-                ThemeProvider.enabled(), getEnabledColor(),
-                ThemeProvider.disabled(), getDisabledColor()
-        );
+    private @NotNull TextColor getPersonalColorByCode(int value) {
+        Map<TextColor, TextColor> colorMap = Map.of(ThemeProvider.primary(), getPrimaryAccentColor(), ThemeProvider.secondary(), getSecondaryAccentColor(), ThemeProvider.general(), getGeneralColor(), ThemeProvider.enabled(), getEnabledColor(), ThemeProvider.disabled(), getDisabledColor());
         TextColor color = TextColor.color(value);
 
         return Optional.ofNullable(colorMap.get(color)).orElse(color);
     }
 
     @org.jetbrains.annotations.Contract(pure = true)
-    private @org.jetbrains.annotations.Nullable TextColor resolveColorValue(int color)
-    {
+    private @org.jetbrains.annotations.Nullable TextColor resolveColorValue(int color) {
         return null;
     }
 
-    protected @NotNull TextColor highlightColor()
-    {
+    protected @NotNull TextColor highlightColor() {
         return getPrimaryAccentColor();
     }
 }

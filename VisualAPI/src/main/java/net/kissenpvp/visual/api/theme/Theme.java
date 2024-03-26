@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 KissenPvP
+ * Copyright (C) 2024 KissenPvP
  *
  * This program is licensed under the Apache License, Version 2.0.
  *
@@ -18,7 +18,21 @@
 
 package net.kissenpvp.visual.api.theme;
 
-import net.kissenpvp.paper.api.user.playersetting.PlayerSetting;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import org.jetbrains.annotations.NotNull;
 
-public interface GeneralUserColor extends PlayerSetting<NamedTextColor> { }
+public interface Theme
+{
+    @NotNull TextColor getPrimaryAccentColor();
+
+    @NotNull TextColor getSecondaryAccentColor();
+
+    @NotNull TextColor getGeneralColor();
+
+    @NotNull TextColor getEnabledColor();
+
+    @NotNull TextColor getDisabledColor();
+
+    @NotNull Component style(@NotNull Component... component);
+}

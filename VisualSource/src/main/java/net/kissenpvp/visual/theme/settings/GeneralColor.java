@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 KissenPvP
+ * Copyright (C) 2024 KissenPvP
  *
  * This program is licensed under the Apache License, Version 2.0.
  *

@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
  */
 
-package net.kissenpvp.visual.api.suffix.playersetting;
+package net.kissenpvp.visual.api.theme.playersetting;
 
 import net.kissenpvp.paper.api.user.playersetting.PlayerSetting;
+import net.kyori.adventure.text.format.NamedTextColor;
 
-public interface SuffixSetting extends PlayerSetting<String> {
-}
+public interface GeneralUserColor extends PlayerSetting<NamedTextColor> { }

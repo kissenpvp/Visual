@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 KissenPvP
+ * Copyright (C) 2024 KissenPvP
  *
  * This program is licensed under the Apache License, Version 2.0.
  *
@@ -19,7 +19,7 @@
 package net.kissenpvp.visual.theme.playersettings;
 
 import net.kissenpvp.core.api.config.ConfigurationImplementation;
-import net.kissenpvp.visual.api.theme.EnabledUserColor;
+import net.kissenpvp.visual.api.theme.playersetting.EnabledUserColor;
 import net.kissenpvp.visual.theme.settings.DefaultEnabledColor;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;

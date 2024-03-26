@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2024 KissenPvP
+ *
+ * This program is licensed under the Apache License, Version 2.0.
+ *
+ * This software may be redistributed and/or modified under the terms
+ * of the Apache License as published by the Apache Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
+ *
+ * This program is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+ * OR CONDITIONS OF ANY KIND, either express or implied. See the Apache
+ * License, Version 2.0 for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * You should have received a copy of the Apache License, Version 2.0
+ * along with this program. If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
 package net.kissenpvp.visual;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -5,19 +23,27 @@ import net.kissenpvp.core.api.config.ConfigurationImplementation;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
-import net.kissenpvp.core.api.user.rank.Rank;
 import net.kissenpvp.paper.api.networking.client.entity.PaperPlayerClient;
 import net.kissenpvp.paper.api.user.event.VisualChangeEvent;
-import net.kissenpvp.paper.api.user.rank.PaperRank;
+import net.kissenpvp.paper.api.user.rank.Rank;
+import net.kissenpvp.visual.api.Visual;
+import net.kissenpvp.visual.api.entity.VisualEntity;
+import net.kissenpvp.visual.api.entity.VisualPlayer;
+import net.kissenpvp.visual.api.entity.VisualPlayerParser;
+import net.kissenpvp.visual.api.rank.VisualRank;
+import net.kissenpvp.visual.api.rank.VisualRankParser;
 import net.kissenpvp.visual.entity.KissenVisualEntity;
 import net.kissenpvp.visual.entity.KissenVisualPlayer;
 import net.kissenpvp.visual.playersettings.KissenPlayPingSound;
 import net.kissenpvp.visual.playersettings.KissenShowPrefix;
 import net.kissenpvp.visual.playersettings.KissenSystemPrefix;
 import net.kissenpvp.visual.rank.KissenVisualRank;
+import net.kissenpvp.visual.rank.RankCommand;
 import net.kissenpvp.visual.renderer.KissenChatRenderer;
 import net.kissenpvp.visual.renderer.KissenSystemMessageListener;
 import net.kissenpvp.visual.renderer.KissenTabRender;
+import net.kissenpvp.visual.suffix.SuffixCommand;
+import net.kissenpvp.visual.theme.playersettings.*;
 import net.kissenpvp.visual.theme.settings.DefaultSystemPrefix;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -40,7 +66,7 @@ import java.text.MessageFormat;
  *
  * @see JavaPlugin
  */
-public class Visual extends JavaPlugin {
+public class InternalVisual extends JavaPlugin implements Visual {
 
     @Override
     public void onEnable() {
@@ -58,9 +84,18 @@ public class Visual extends JavaPlugin {
         pluginManager.registerEvents(quitEvent, this);
         pluginManager.registerEvents(new KissenSystemMessageListener(), this);
 
+        pluginManager.registerCommand(this, new SuffixCommand(), new RankCommand());
+        pluginManager.registerParser(VisualPlayer.class, new VisualPlayerParser(this), this);
+        pluginManager.registerParser(VisualRank.class, new VisualRankParser(this), this);
+
         pluginManager.registerPlayerSetting(new KissenPlayPingSound(), this);
         pluginManager.registerPlayerSetting(new KissenShowPrefix(), this);
         pluginManager.registerPlayerSetting(new KissenSystemPrefix(), this);
+        pluginManager.registerPlayerSetting(new KissenPrimaryUserColor(), this);
+        pluginManager.registerPlayerSetting(new KissenSecondaryUserColor(), this);
+        pluginManager.registerPlayerSetting(new KissenGeneralUserColor(), this);
+        pluginManager.registerPlayerSetting(new KissenEnabledUserColor(), this);
+        pluginManager.registerPlayerSetting(new KissenDisabledUserColor(), this);
 
         pluginManager.registerSetting(new DefaultSystemPrefix(), this);
 
@@ -69,13 +104,13 @@ public class Visual extends JavaPlugin {
         pluginManager.registerTranslation("visual.tab.footer", new MessageFormat("\n " + split + "\nYour Ping: {0}ms"), this);
     }
 
-    public @NotNull KissenVisualRank getRank(@NotNull PaperRank rank) {
+    public @NotNull KissenVisualRank getRankData(@NotNull Rank rank) {
         return new KissenVisualRank(rank);
     }
 
-    public @NotNull KissenVisualEntity<? extends ServerEntity> getEntity(@NotNull ServerEntity entity) {
+    public <T extends ServerEntity> @NotNull VisualEntity<T> getEntity(@NotNull T entity) {
         if (entity instanceof Player player) {
-            return (KissenVisualPlayer) player.getUser().getStorage().computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
+            return (VisualEntity<T>) player.getUser().getStorage().computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
         }
         return new KissenVisualEntity<>(entity);
     }
@@ -95,7 +130,7 @@ public class Visual extends JavaPlugin {
     public @NotNull Component getPrefix(@NotNull ServerEntity serverEntity) {
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
-        KissenVisualEntity<?> entity = getEntity(serverEntity);
+        VisualEntity<?> entity = getEntity(serverEntity);
 
         String primary = entity.getTheme().getPrimaryAccentColor().asHexString();
         String secondary = entity.getTheme().getSecondaryAccentColor().asHexString();

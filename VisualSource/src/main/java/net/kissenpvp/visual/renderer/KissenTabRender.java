@@ -1,8 +1,25 @@
+/*
+ * Copyright (C) 2024 KissenPvP
+ *
+ * This program is licensed under the Apache License, Version 2.0.
+ *
+ * This software may be redistributed and/or modified under the terms
+ * of the Apache License as published by the Apache Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
+ *
+ * This program is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+ * OR CONDITIONS OF ANY KIND, either express or implied. See the Apache
+ * License, Version 2.0 for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * You should have received a copy of the Apache License, Version 2.0
+ * along with this program. If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
 package net.kissenpvp.visual.renderer;
 
-import net.kissenpvp.visual.api.entity.VisualPlayer;
-import net.kissenpvp.visual.entity.KissenVisualEntity;
-import net.kissenpvp.visual.Visual;
+import net.kissenpvp.visual.api.entity.VisualEntity;
+import net.kissenpvp.visual.InternalVisual;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -39,14 +56,14 @@ public class KissenTabRender {
         final MiniMessage miniMessage = MiniMessage.miniMessage();
         final TranslatableComponent header = Component.translatable("visual.tab.header");
         final TranslatableComponent footer = Component.translatable("visual.tab.footer");
-        final Visual visual = Visual.getPlugin(Visual.class);
+        final InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(Visual.getPlugin(Visual.class), () -> Bukkit.getOnlinePlayers().forEach(player -> {
-            KissenVisualEntity<?> visualPlayer = visual.getEntity(player);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(InternalVisual.getPlugin(InternalVisual.class), () -> Bukkit.getOnlinePlayers().forEach(player -> {
+            VisualEntity<?> visualPlayer = internalVisual.getEntity(player);
             String primary = visualPlayer.getTheme().getPrimaryAccentColor().asHexString();
             String secondary = visualPlayer.getTheme().getSecondaryAccentColor().asHexString();
 
-            Component prefix = visual.getPrefix(player);
+            Component prefix = internalVisual.getPrefix(player);
 
             Component[] headerArguments = {prefix, Component.text(Bukkit.getOnlinePlayers().size()), Component.text(Bukkit.getMaxPlayers())};
             Component[] footerArguments = {Component.text(player.getPing())};
@@ -80,12 +97,12 @@ public class KissenTabRender {
      * @see Team
      */
     private void setTab(@NotNull Player player) {
-        Visual visual = Visual.getPlugin(Visual.class);
+        InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         for (Player current : Bukkit.getOnlinePlayers()) {
-            initializeTeam((VisualPlayer) visual.getEntity(current), generateTeam(current, scoreboard)).addPlayer(current);
+            initializeTeam(internalVisual.getEntity(current), generateTeam(current, scoreboard)).addPlayer(current);
         }
-        player.playerListName(visual.getEntity(player).styledName());
+        player.playerListName(internalVisual.getEntity(player).styledName());
         player.setScoreboard(scoreboard);
     }
 
@@ -121,7 +138,7 @@ public class KissenTabRender {
      * @see Team
      */
     @Contract(value = "_, _ -> param2", mutates = "param2")
-    private @NotNull Team initializeTeam(@NotNull VisualPlayer current, @NotNull Team team) {
+    private @NotNull Team initializeTeam(@NotNull VisualEntity<?> current, @NotNull Team team) {
         Component space = Component.space();
         current.getPrefixComponent().map(Component::appendSpace).ifPresent(team::prefix);
         current.getSuffixComponent().map(suffix -> Component.space().append(suffix)).ifPresent(team::suffix);

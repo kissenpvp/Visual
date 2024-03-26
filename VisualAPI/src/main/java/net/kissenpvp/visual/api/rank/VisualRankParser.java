@@ -16,36 +16,39 @@
  * along with this program. If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
  */
 
-package net.kissenpvp.visual.playersettings;
+package net.kissenpvp.visual.api.rank;
 
-import net.kissenpvp.core.api.user.playersettting.UserValue;
-import net.kissenpvp.visual.api.playersetting.PlayPingSound;
-import org.bukkit.OfflinePlayer;
+import net.kissenpvp.paper.api.command.ArgumentParser;
+import net.kissenpvp.paper.api.user.rank.RankParser;
+import net.kissenpvp.visual.api.Visual;
 import org.jetbrains.annotations.NotNull;
 
-public class KissenPlayPingSound implements PlayPingSound {
-    @Override
-    public @NotNull String getKey() {
-        return "notify";
+public class VisualRankParser implements ArgumentParser<VisualRank> {
+
+    private final Visual visual;
+    private final RankParser parent;
+
+    public VisualRankParser(@NotNull Visual visual) {
+        this.visual = visual;
+        this.parent = new RankParser();
+    }
+
+    protected @NotNull Visual getVisual() {
+        return visual;
+    }
+
+    protected @NotNull RankParser getParent() {
+        return parent;
     }
 
     @Override
-    public @NotNull Boolean getDefaultValue(@NotNull OfflinePlayer playerClient) {
-        return true;
+    public @NotNull String serialize(@NotNull VisualRank visualRank) {
+        return visualRank.getName();
     }
 
     @Override
-    public @NotNull UserValue<Boolean>[] getPossibleValues(@NotNull OfflinePlayer playerClient) {
-        return new UserValue[]{new UserValue<>(false), new UserValue<>(true),};
-    }
+    public @NotNull VisualRank deserialize(@NotNull String input) {
 
-    @Override
-    public @NotNull String serialize(@NotNull Boolean sound) {
-        return sound.toString();
-    }
-
-    @Override
-    public @NotNull Boolean deserialize(@NotNull String s) {
-        return Boolean.parseBoolean(s);
+        return getVisual().getRankData(getParent().deserialize(input));
     }
 }

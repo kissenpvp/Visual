@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 KissenPvP
+ * Copyright (C) 2024 KissenPvP
  *
  * This program is licensed under the Apache License, Version 2.0.
  *
@@ -21,7 +21,7 @@ package net.kissenpvp.visual.theme;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.kissenpvp.visual.api.theme.HighlightVariables;
+import net.kissenpvp.visual.api.theme.playersetting.*;
 import net.kissenpvp.visual.theme.playersettings.*;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
@@ -37,23 +37,23 @@ public class PlayerTheme extends DefaultTheme {
 
     @Override
     public @NotNull TextColor getPrimaryAccentColor() {
-        return getPlayer().getSetting(KissenPrimaryUserColor.class).getValue();
+        return getPlayer().getSetting(PrimaryUserColor.class).getValue();
     }
 
 
     @Override
     public @NotNull TextColor getSecondaryAccentColor() {
-        return getPlayer().getSetting(KissenSecondaryUserColor.class).getValue();
+        return getPlayer().getSetting(SecondaryUserColor.class).getValue();
     }
 
     @Override
     public @NotNull TextColor getGeneralColor() {
-        return getPlayer().getSetting(KissenGeneralUserColor.class).getValue();
+        return getPlayer().getSetting(GeneralUserColor.class).getValue();
     }
 
     @Override
     public @NotNull TextColor getEnabledColor() {
-        return getPlayer().getSetting(KissenEnabledUserColor.class).getValue();
+        return getPlayer().getSetting(EnabledUserColor.class).getValue();
     }
 
     @Override

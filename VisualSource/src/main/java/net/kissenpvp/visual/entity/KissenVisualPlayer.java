@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2024 KissenPvP
+ *
+ * This program is licensed under the Apache License, Version 2.0.
+ *
+ * This software may be redistributed and/or modified under the terms
+ * of the Apache License as published by the Apache Software Foundation,
+ * either version 2 of the License, or (at your option) any later version.
+ *
+ * This program is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+ * OR CONDITIONS OF ANY KIND, either express or implied. See the Apache
+ * License, Version 2.0 for the specific language governing permissions
+ * and limitations under the License.
+ *
+ * You should have received a copy of the Apache License, Version 2.0
+ * along with this program. If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
 package net.kissenpvp.visual.entity;
 
 import net.kissenpvp.core.api.database.DataWriter;
@@ -6,7 +24,7 @@ import net.kissenpvp.core.api.time.AccurateDuration;
 import net.kissenpvp.core.api.time.TemporalObject;
 import net.kissenpvp.core.api.user.User;
 import net.kissenpvp.paper.api.base.Context;
-import net.kissenpvp.visual.Visual;
+import net.kissenpvp.visual.InternalVisual;
 import net.kissenpvp.visual.api.entity.VisualPlayer;
 import net.kissenpvp.visual.api.suffix.Suffix;
 import net.kissenpvp.visual.suffix.*;
@@ -30,6 +48,11 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
 
     public KissenVisualPlayer(@NotNull OfflinePlayer serverEntity) {
         super(serverEntity, serverEntity instanceof Player player ? new PlayerTheme(player):new DefaultTheme()); //TODO actual theme of offline player
+    }
+
+    @Override
+    public @NotNull OfflinePlayer getParent() {
+        return getEntity();
     }
 
     @Override
@@ -110,8 +133,8 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
 
     @Override
     public @NotNull Optional<Component> getPrefixComponent() {
-        Visual visual = Visual.getPlugin(Visual.class);
-        return visual.getRank(getEntity().getRank().getSource()).getPrefix();
+        InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
+        return internalVisual.getRank(getEntity().getRank().getSource()).getPrefix();
     }
 
     @Override
