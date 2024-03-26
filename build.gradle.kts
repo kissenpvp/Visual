@@ -20,7 +20,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id("java")
+    java
 }
 
 group = "net.kissenpvp"
@@ -47,6 +47,7 @@ subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven("https://repo.papermc.io/repository/maven-public/")
     }
 
     tasks.withType<JavaCompile> {

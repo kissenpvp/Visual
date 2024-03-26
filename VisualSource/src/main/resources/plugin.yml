@@ -1,0 +1,7 @@
+name: Visual
+main: net.kissenpvp.visual.InternalVisual
+api-version: 1.13
+description: Enables servers to alter the tab list and chat based on prefix and suffixes.
+prefix: Visual
+author: DevLucas
+version: '${version}'

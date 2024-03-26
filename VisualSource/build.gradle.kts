@@ -17,24 +17,35 @@
  */
 
 plugins {
-    id("java")
+    java
 }
 
 group = "net.kissenpvp"
 version = "1.4.3"
 
-repositories {
-    mavenCentral()
+configurations {
+    create("includeLib")
 }
 
 dependencies {
-
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation(project(":VisualAPI"))
+    "includeLib"(project(":VisualAPI"))
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks.processResources {
+    val props = mapOf("version" to version)
+    inputs.properties(props)
+    filteringCharset = "UTF-8"
+
+    filesMatching("plugin.yml") {
+        expand(props)
+    }
 }
+
+tasks.jar {
+    from(configurations["includeLib"].map { if (it.isDirectory) it else zipTree(it) })
+}
+

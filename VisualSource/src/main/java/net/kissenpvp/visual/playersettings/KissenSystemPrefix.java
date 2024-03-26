@@ -19,13 +19,12 @@
 package net.kissenpvp.visual.playersettings;
 
 import net.kissenpvp.core.api.config.ConfigurationImplementation;
-import net.kissenpvp.core.api.permission.Permission;
 import net.kissenpvp.core.api.user.playersettting.UserValue;
+import net.kissenpvp.paper.api.permission.Permission;
 import net.kissenpvp.visual.api.playersetting.SystemPrefix;
 import net.kissenpvp.visual.theme.settings.DefaultSystemPrefix;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Stream;
@@ -42,8 +41,8 @@ public class KissenSystemPrefix implements SystemPrefix {
     }
 
     @Override
-    public @NotNull UserValue<String>[] getPossibleValues(@NotNull OfflinePlayer playerClient) {
-        return ((Player) playerClient).getPermissionList().stream().filter(Permission::isValid).flatMap(permission -> {
+    public @NotNull UserValue<String>[] getPossibleValues(@NotNull OfflinePlayer player) {
+        return player.getPermissionList().stream().filter(Permission::isValid).flatMap(permission -> {
             String permissionName = permission.getName();
             String permissionRequired = "visual.setting.%s.".formatted(getKey());
             if (permissionName.startsWith(permissionRequired)) {

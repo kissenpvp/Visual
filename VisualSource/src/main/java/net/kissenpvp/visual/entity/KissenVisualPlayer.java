@@ -134,7 +134,7 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
     @Override
     public @NotNull Optional<Component> getPrefixComponent() {
         InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
-        return internalVisual.getRank(getEntity().getRank().getSource()).getPrefix();
+        return internalVisual.getRankData(getEntity().getRank().getSource()).getPrefix();
     }
 
     @Override
