@@ -23,9 +23,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
 import net.kissenpvp.visual.api.entity.VisualEntity;
-import net.kissenpvp.visual.theme.DefaultTheme;
 import net.kissenpvp.visual.api.theme.Theme;
+import net.kissenpvp.visual.theme.DefaultTheme;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -36,7 +38,7 @@ import java.util.function.Function;
 public class KissenVisualEntity<S extends ServerEntity> implements VisualEntity<S> {
 
     private S entity;
-    @lombok.Getter private Theme theme;
+    @Getter private Theme theme;
 
     public KissenVisualEntity(@NotNull S serverEntity) {
         this(serverEntity, new DefaultTheme());
@@ -44,17 +46,31 @@ public class KissenVisualEntity<S extends ServerEntity> implements VisualEntity<
 
     public @NotNull Component styledName() {
         Component prefix = getPrefixComponent().map(Component::appendSpace).orElseGet(Component::empty);
-
         Function<Component, Component> space = suffix -> Component.space().append(suffix);
         Component suffix = getSuffixComponent().map(space).orElseGet(Component::empty);
-        return prefix.append(getEntity().displayName()).append(suffix);
+        return prefix.append(getEntity().displayName().color(getNameColor())).append(suffix);
     }
 
-    public @NotNull Optional<Component> getPrefixComponent() {
+    public @NotNull TextColor getNameColor()
+    {
+        return NamedTextColor.WHITE;
+    }
+
+    @Override
+    public final @NotNull Optional<Component> getPrefixComponent() {
+        return prefixComponent().map(getTheme()::style);
+    }
+
+    @Override
+    public final @NotNull Optional<Component> getSuffixComponent() {
+        return suffixComponent().map(getTheme()::style);
+    }
+
+    protected @NotNull Optional<Component> prefixComponent() {
         return Optional.empty();
     }
 
-    public @NotNull Optional<Component> getSuffixComponent() {
+    protected @NotNull Optional<Component> suffixComponent() {
         return Optional.empty();
     }
 }

@@ -26,6 +26,11 @@ plugins {
 group = "net.kissenpvp"
 version = "1.4.3"
 
+
+configurations {
+    create("includeLib")
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -78,4 +83,13 @@ subprojects {
 
         testCompileOnly("org.jetbrains:annotations:24.0.0")
     }
+}
+
+dependencies {
+    implementation(project(":VisualAPI"))
+    implementation(project(":VisualSource"))
+}
+
+tasks.jar {
+    from(subprojects.map { it.sourceSets.getByName("main").output })
 }

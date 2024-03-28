@@ -20,6 +20,7 @@ package net.kissenpvp.visual;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kissenpvp.core.api.config.ConfigurationImplementation;
+import net.kissenpvp.core.api.database.savable.Savable;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
@@ -38,13 +39,15 @@ import net.kissenpvp.visual.playersettings.KissenPlayPingSound;
 import net.kissenpvp.visual.playersettings.KissenShowPrefix;
 import net.kissenpvp.visual.playersettings.KissenSystemPrefix;
 import net.kissenpvp.visual.rank.KissenVisualRank;
+import net.kissenpvp.visual.rank.KissenVisualRankFallBack;
 import net.kissenpvp.visual.rank.RankCommand;
 import net.kissenpvp.visual.renderer.KissenChatRenderer;
 import net.kissenpvp.visual.renderer.KissenSystemMessageListener;
 import net.kissenpvp.visual.renderer.KissenTabRender;
+import net.kissenpvp.visual.suffix.KissenSuffixSetting;
 import net.kissenpvp.visual.suffix.SuffixCommand;
 import net.kissenpvp.visual.theme.playersettings.*;
-import net.kissenpvp.visual.theme.settings.DefaultSystemPrefix;
+import net.kissenpvp.visual.theme.settings.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -72,22 +75,25 @@ public class InternalVisual extends JavaPlugin implements Visual {
     public void onEnable() {
         KissenTabRender kissenTabRender = new KissenTabRender();
         KissenChatRenderer kissenChatRenderer = new KissenChatRenderer();
+        PluginManager pluginManager = getServer().getPluginManager();
+
+        // listener
         EventListener<VisualChangeEvent> visualChangeEvent = (event) -> kissenTabRender.update();
         EventListener<AsyncChatEvent> chatEvent = (event) -> event.renderer(kissenChatRenderer);
         EventListener<PlayerJoinEvent> joinEvent = (event) -> event.joinMessage(getMessage(true, event.getPlayer()));
         EventListener<PlayerQuitEvent> quitEvent = (event) -> event.quitMessage(getMessage(false, event.getPlayer()));
-
-        PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(visualChangeEvent, this);
         pluginManager.registerEvents(chatEvent, this);
         pluginManager.registerEvents(joinEvent, this);
         pluginManager.registerEvents(quitEvent, this);
         pluginManager.registerEvents(new KissenSystemMessageListener(), this);
 
+        // commands
         pluginManager.registerCommand(this, new SuffixCommand(), new RankCommand());
         pluginManager.registerParser(VisualPlayer.class, new VisualPlayerParser(this), this);
         pluginManager.registerParser(VisualRank.class, new VisualRankParser(this), this);
 
+        // player settings
         pluginManager.registerPlayerSetting(new KissenPlayPingSound(), this);
         pluginManager.registerPlayerSetting(new KissenShowPrefix(), this);
         pluginManager.registerPlayerSetting(new KissenSystemPrefix(), this);
@@ -96,18 +102,32 @@ public class InternalVisual extends JavaPlugin implements Visual {
         pluginManager.registerPlayerSetting(new KissenGeneralUserColor(), this);
         pluginManager.registerPlayerSetting(new KissenEnabledUserColor(), this);
         pluginManager.registerPlayerSetting(new KissenDisabledUserColor(), this);
+        pluginManager.registerPlayerSetting(new KissenHighlightVariables(), this);
+        pluginManager.registerPlayerSetting(new KissenSuffixSetting(), this);
 
+        // settings
         pluginManager.registerSetting(new DefaultSystemPrefix(), this);
+        pluginManager.registerSetting(new DefaultPrimaryColor(), this);
+        pluginManager.registerSetting(new DefaultSecondaryColor(), this);
+        pluginManager.registerSetting(new GeneralColor(), this);
+        pluginManager.registerSetting(new DefaultEnabledColor(), this);
+        pluginManager.registerSetting(new DefaultDisabledColor(), this);
 
+        // localization
         String split = " " + "-".repeat(20) + " ";
         pluginManager.registerTranslation("visual.tab.header", new MessageFormat("- {0} - \nOnline Players: {1}/{2}\n" + split + "\n"), this);
         pluginManager.registerTranslation("visual.tab.footer", new MessageFormat("\n " + split + "\nYour Ping: {0}ms"), this);
     }
 
-    public @NotNull KissenVisualRank getRankData(@NotNull Rank rank) {
+    @Override
+    public @NotNull VisualRank getRankData(@NotNull Rank rank) {
+        if (!(rank instanceof Savable savable)) {
+            return new KissenVisualRankFallBack(rank);
+        }
         return new KissenVisualRank(rank);
     }
 
+    @Override
     public <T extends ServerEntity> @NotNull VisualEntity<T> getEntity(@NotNull T entity) {
         if (entity instanceof Player player) {
             return (VisualEntity<T>) player.getUser().getStorage().computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));

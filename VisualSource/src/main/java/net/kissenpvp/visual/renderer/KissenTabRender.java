@@ -18,8 +18,8 @@
 
 package net.kissenpvp.visual.renderer;
 
-import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kissenpvp.visual.InternalVisual;
+import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -73,37 +73,17 @@ public class KissenTabRender {
         }), 0, 20);
     }
 
-    /**
-     * Updates the player tab list with customized prefixes, suffixes, and colors based on ranks and settings.
-     *
-     * <p>The {@code update} method iterates through all online players and sets their tab list information
-     * by calling the {@link #setTab(Player)} method.</p>
-     *
-     * @see #setTab(Player)
-     */
     public void update() {
-        Bukkit.getOnlinePlayers().forEach(this::setTab);
+        setTab();
     }
 
-    /**
-     * Sets up the player tab list by creating and initializing teams for each online player.
-     *
-     * <p>The {@code setTab} method creates a new scoreboard and iterates through all online players to
-     * initialize and add teams based on their ranks and settings.</p>
-     *
-     * @param player the {@link Player} for whom the tab list is set up
-     * @throws NullPointerException if the player is `null`
-     * @see Player
-     * @see Team
-     */
-    private void setTab(@NotNull Player player) {
+    private void setTab() {
         InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         for (Player current : Bukkit.getOnlinePlayers()) {
-            initializeTeam(internalVisual.getEntity(current), generateTeam(current, scoreboard)).addPlayer(current);
+            prepareTeam(internalVisual.getEntity(current), generateTeam(current, scoreboard)).addPlayer(current);
+            current.setScoreboard(scoreboard);
         }
-        player.playerListName(internalVisual.getEntity(player).styledName());
-        player.setScoreboard(scoreboard);
     }
 
     /**
@@ -138,14 +118,11 @@ public class KissenTabRender {
      * @see Team
      */
     @Contract(value = "_, _ -> param2", mutates = "param2")
-    private @NotNull Team initializeTeam(@NotNull VisualEntity<?> current, @NotNull Team team) {
+    private @NotNull Team prepareTeam(@NotNull VisualEntity<?> current, @NotNull Team team) {
         Component space = Component.space();
         current.getPrefixComponent().map(Component::appendSpace).ifPresent(team::prefix);
         current.getSuffixComponent().map(suffix -> Component.space().append(suffix)).ifPresent(team::suffix);
-/*        team.color(current.getRank().getSource().getPrefix().flatMap(prefix -> { //TODO
-            team.prefix(prefix.appendSpace());
-            return getLastColor(prefix);
-        }).orElse(NamedTextColor.nearestTo(current.getRank().getSource().getChatColor())));*/
+        team.color(NamedTextColor.nearestTo(current.getNameColor()));
         return team;
     }
 

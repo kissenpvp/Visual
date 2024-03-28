@@ -31,6 +31,7 @@ import net.kissenpvp.visual.suffix.*;
 import net.kissenpvp.visual.theme.DefaultTheme;
 import net.kissenpvp.visual.theme.PlayerTheme;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -131,14 +132,21 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
         return getSuffix(setting).filter(TemporalObject::isValid);
     }
 
+
     @Override
-    public @NotNull Optional<Component> getPrefixComponent() {
+    public @NotNull TextColor getNameColor() {
+        InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
+        return internalVisual.getRankData(getParent().getRank().getSource()).getColor();
+    }
+
+    @Override
+    protected @NotNull Optional<Component> prefixComponent() {
         InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
         return internalVisual.getRankData(getEntity().getRank().getSource()).getPrefix();
     }
 
     @Override
-    public @NotNull Optional<Component> getSuffixComponent() {
+    protected @NotNull Optional<Component> suffixComponent() {
         return getSuffix().map(Suffix::getContent);
     }
 

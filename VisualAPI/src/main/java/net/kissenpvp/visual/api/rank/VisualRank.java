@@ -18,6 +18,7 @@
 
 package net.kissenpvp.visual.api.rank;
 
+import net.kissenpvp.core.api.event.EventCancelledException;
 import net.kissenpvp.paper.api.user.rank.Rank;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -31,21 +32,21 @@ public interface VisualRank extends Rank {
     @NotNull
     TextColor getColor();
 
-    void setColor(@Nullable TextColor textColor);
+    void setColor(@Nullable TextColor textColor) throws EventCancelledException;
 
-    void unsetColor();
+    void unsetColor() throws EventCancelledException;
 
     @NotNull
     Optional<Component> getPrefix();
 
-    void setPrefix(@Nullable Component component);
+    void setPrefix(@Nullable Component component) throws EventCancelledException;
 
-    void unsetPrefix();
+    void unsetPrefix() throws EventCancelledException;
 
     @NotNull
     Optional<Component> getSuffix();
 
-    void setSuffix(@Nullable Component component);
+    void setSuffix(@Nullable Component component) throws EventCancelledException;
 
     void unsetSuffix();
 

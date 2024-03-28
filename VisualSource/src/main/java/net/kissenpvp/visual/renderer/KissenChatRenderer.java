@@ -20,6 +20,7 @@ package net.kissenpvp.visual.renderer;
 
 import io.papermc.paper.chat.ChatRenderer;
 import net.kissenpvp.visual.InternalVisual;
+import net.kissenpvp.visual.api.rank.VisualRank;
 import net.kissenpvp.visual.playersettings.KissenPlayPingSound;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -45,10 +46,11 @@ public class KissenChatRenderer implements ChatRenderer {
     @Contract(value = "_, _, _, _ -> new")
     public @NotNull Component render(@NotNull Player player, @NotNull Component component, @NotNull Component message, @NotNull Audience audience) {
         InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
+        VisualRank visualRank = internalVisual.getRankData(player.getRank().getSource());
 
         Component splitter = Component.text("»").color(NamedTextColor.GRAY);
         Component chatPrefix = internalVisual.getEntity(player).styledName().appendSpace().append(splitter).appendSpace();
-        TextColor chatColor = NamedTextColor.WHITE; //player.getRank().getSource().getChatColor(); //TODO
+        TextColor chatColor = visualRank.getColor();
         return chatPrefix.append(pingPlayer(player, message.color(chatColor)));
     }
 
