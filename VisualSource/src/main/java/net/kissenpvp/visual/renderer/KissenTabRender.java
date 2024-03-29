@@ -78,12 +78,13 @@ public class KissenTabRender {
     }
 
     private void setTab() {
-        InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
+        InternalVisual visual = InternalVisual.getPlugin(InternalVisual.class);
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        for (Player current : Bukkit.getOnlinePlayers()) {
-            prepareTeam(internalVisual.getEntity(current), generateTeam(current, scoreboard)).addPlayer(current);
-            current.setScoreboard(scoreboard);
-        }
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            VisualEntity<?> visualEntity = visual.getEntity(player);
+            prepareTeam(visualEntity, generateTeam(player, scoreboard)).addPlayer(player);
+            player.setScoreboard(scoreboard);
+        });
     }
 
     /**
