@@ -52,6 +52,7 @@ subprojects {
     repositories {
         mavenCentral()
         maven("https://repo.kissenpvp.net/repository/maven-public/")
+        maven("https://repo.papermc.io/repository/maven-public/")
     }
 
     tasks.withType<JavaCompile> {
