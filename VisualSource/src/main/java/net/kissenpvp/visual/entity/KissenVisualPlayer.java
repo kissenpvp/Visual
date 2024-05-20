@@ -19,6 +19,7 @@
 package net.kissenpvp.visual.entity;
 
 import net.kissenpvp.core.api.database.DataWriter;
+import net.kissenpvp.core.api.database.savable.SavableMap;
 import net.kissenpvp.core.api.event.EventCancelledException;
 import net.kissenpvp.core.api.time.AccurateDuration;
 import net.kissenpvp.core.api.time.TemporalObject;
@@ -27,7 +28,9 @@ import net.kissenpvp.paper.api.base.Context;
 import net.kissenpvp.visual.InternalVisual;
 import net.kissenpvp.visual.api.entity.VisualPlayer;
 import net.kissenpvp.visual.api.suffix.Suffix;
-import net.kissenpvp.visual.suffix.*;
+import net.kissenpvp.visual.suffix.KissenSuffix;
+import net.kissenpvp.visual.suffix.KissenSuffixSetting;
+import net.kissenpvp.visual.suffix.SuffixNode;
 import net.kissenpvp.visual.theme.DefaultTheme;
 import net.kissenpvp.visual.theme.PlayerTheme;
 import net.kyori.adventure.text.Component;
@@ -51,6 +54,10 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
         super(serverEntity, serverEntity instanceof Player player ? new PlayerTheme(player):new DefaultTheme()); //TODO actual theme of offline player
     }
 
+    private static @NotNull SavableMap getRepository(@NotNull User user) {
+        return user.getRepository(InternalVisual.getPlugin(InternalVisual.class));
+    }
+
     @Override
     public @NotNull OfflinePlayer getParent() {
         return getEntity();
@@ -59,7 +66,7 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
     @Override
     public @NotNull Set<Suffix> getSuffixes(@NotNull Context context) {
         User user = getEntity().getUser(context);
-        Stream<SuffixNode> suffixData = user.getListNotNull("suffix_list", SuffixNode.class).stream();
+        Stream<SuffixNode> suffixData = getRepository(user).getListNotNull("suffix_list", SuffixNode.class).stream();
         return suffixData.map(transformSuffix(context)).collect(Collectors.toUnmodifiableSet());
     }
 
@@ -81,7 +88,7 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
         User user = getEntity().getUser(context);
 
         SuffixNode suffixNode = new SuffixNode(name, content, accurateDuration);
-        user.getListNotNull("suffix_list", SuffixNode.class).replaceOrInsert(suffixNode);
+        getRepository(user).getListNotNull("suffix_list", SuffixNode.class).replaceOrInsert(suffixNode);
 
         return transformSuffix(context).apply(suffixNode);
     }
@@ -132,7 +139,6 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
         return getSuffix(setting).filter(TemporalObject::isValid);
     }
 
-
     @Override
     public @NotNull TextColor getNameColor() {
         InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
@@ -155,6 +161,6 @@ public class KissenVisualPlayer extends KissenVisualEntity<OfflinePlayer> implem
     }
 
     protected @NotNull DataWriter<SuffixNode> suffixDataWriter(@NotNull User user) {
-        return (suffix) -> user.getListNotNull("suffix_list", SuffixNode.class).replaceOrInsert(suffix);
+        return (suffix) -> getRepository(user).getListNotNull("suffix_list", SuffixNode.class).replaceOrInsert(suffix);
     }
 }

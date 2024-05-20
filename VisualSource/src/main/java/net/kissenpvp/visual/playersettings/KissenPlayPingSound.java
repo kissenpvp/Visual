@@ -24,6 +24,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class KissenPlayPingSound implements PlayPingSound {
+
     @Override
     public @NotNull String getKey() {
         return "notify";

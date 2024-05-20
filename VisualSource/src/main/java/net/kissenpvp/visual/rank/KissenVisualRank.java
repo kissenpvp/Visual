@@ -20,9 +20,11 @@ package net.kissenpvp.visual.rank;
 
 import net.kissenpvp.core.api.database.meta.BackendException;
 import net.kissenpvp.core.api.database.savable.Savable;
+import net.kissenpvp.core.api.database.savable.SavableMap;
 import net.kissenpvp.core.api.event.EventCancelledException;
 import net.kissenpvp.paper.api.networking.client.entity.PaperPlayerClient;
 import net.kissenpvp.paper.api.user.rank.Rank;
+import net.kissenpvp.visual.InternalVisual;
 import net.kissenpvp.visual.api.rank.VisualRank;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -37,16 +39,16 @@ import java.util.Set;
 public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
 
     @NotNull
-    private Savable dataSource() {
-        return (Savable) rank();
+    private SavableMap getRepository() {
+        return ((Savable<?>) rank()).getRepository(InternalVisual.getPlugin(InternalVisual.class));
     }
 
     @Override
     public @NotNull TextColor getColor() {
-        return dataSource().get("color", TextColor.class).orElseGet(() -> getPrefix().map(component -> {
+        return getRepository().get("color", TextColor.class).orElseGet(() -> getPrefix().map(component -> {
             TextColor namedTextColor = component.color();
             if (!component.children().isEmpty()) {
-                namedTextColor = component.children().get(component.children().size() - 1).color();
+                namedTextColor = component.children().getLast().color();
             }
             return namedTextColor; // might be null
         }).orElse(NamedTextColor.WHITE));
@@ -54,7 +56,7 @@ public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
 
     @Override
     public void setColor(@Nullable TextColor textColor) {
-        dataSource().set("color", textColor);
+        getRepository().set("color", textColor);
     }
 
     @Override
@@ -64,12 +66,12 @@ public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
 
     @Override
     public @NotNull Optional<Component> getPrefix() {
-        return dataSource().get("prefix", Component.class);
+        return getRepository().get("prefix", Component.class);
     }
 
     @Override
     public void setPrefix(@Nullable Component component) {
-        dataSource().set("prefix", component);
+        getRepository().set("prefix", component);
     }
 
     @Override
@@ -79,12 +81,12 @@ public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
 
     @Override
     public @NotNull Optional<Component> getSuffix() {
-        return dataSource().get("suffix", Component.class);
+        return getRepository().get("suffix", Component.class);
     }
 
     @Override
     public void setSuffix(@Nullable Component component) {
-        dataSource().set("suffix", component);
+        getRepository().set("suffix", component);
     }
 
     @Override
