@@ -33,7 +33,7 @@ configurations {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven("https://repo.kissenpvp.net/repository/maven-public/")
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 
@@ -50,9 +50,8 @@ allprojects {
 
 subprojects {
     repositories {
-        mavenLocal()
         mavenCentral()
-        maven("https://repo.papermc.io/repository/maven-public/")
+        maven("https://repo.kissenpvp.net/repository/maven-public/")
     }
 
     tasks.withType<JavaCompile> {
@@ -77,9 +76,7 @@ subprojects {
     dependencies {
         testImplementation(platform("org.junit:junit-bom:5.9.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")
-
-        compileOnly("net.kissenpvp.paper:kissenpaper-api:1.20.6-R0.1-SNAPSHOT")
-        compileOnly("net.kissenpvp:kissen-api:1.0.0-SNAPSHOT")
+        compileOnly("net.kissenpvp.paper:kissenpaper-api:1.20.6-R0.1-20240520.100459-6")
 
         testCompileOnly("org.jetbrains:annotations:24.0.0")
     }
