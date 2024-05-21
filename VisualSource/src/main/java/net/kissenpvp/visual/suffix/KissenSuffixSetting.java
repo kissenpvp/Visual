@@ -71,8 +71,4 @@ public class KissenSuffixSetting implements SuffixSetting
         settings.add(new UserValue<>("none"));
         return settings.toArray(UserValue[]::new);
     }
-
-
-
-
 }
