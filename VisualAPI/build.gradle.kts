@@ -21,4 +21,4 @@ plugins {
 }
 
 group = "net.kissenpvp"
-version = "1.4.2"
+version = rootProject.version

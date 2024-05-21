@@ -20,12 +20,12 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
+    `maven-publish`
     java
 }
 
 group = "net.kissenpvp"
-version = "1.5.3"
-
+version = "1.5.3-SNAPSHOT"
 
 configurations {
     create("includeLib")
@@ -46,7 +46,17 @@ allprojects {
             languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
+
+    publishing {
+        repositories {
+            maven("https://repo.kissenpvp.net/repository/maven-snapshots/") {
+                name = "kissenpvp"
+                credentials(PasswordCredentials::class)
+            }
+        }
+    }
 }
+
 
 subprojects {
     repositories {
@@ -80,6 +90,12 @@ subprojects {
         compileOnly("net.kissenpvp.paper:kissenpaper-api:1.20.6-R0.1-20240520.100459-6")
 
         testCompileOnly("org.jetbrains:annotations:24.0.0")
+    }
+
+    publishing {
+        publications.create<MavenPublication>(project.name) {
+            artifact("${project.projectDir}/build/libs/${project.name}-${rootProject.version}.jar")
+        }
     }
 }
 

@@ -21,7 +21,7 @@ plugins {
 }
 
 group = "net.kissenpvp"
-version = "1.4.3"
+version = rootProject.version
 
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
