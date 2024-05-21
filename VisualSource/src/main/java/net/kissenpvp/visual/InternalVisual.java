@@ -121,7 +121,7 @@ public class InternalVisual extends JavaPlugin implements Visual {
 
     @Override
     public @NotNull VisualRank getRankData(@NotNull Rank rank) {
-        if (!(rank instanceof Savable savable)) {
+        if (!(rank instanceof Savable<?> savable)) {
             return new KissenVisualRankFallBack(rank);
         }
         return new KissenVisualRank(rank);
