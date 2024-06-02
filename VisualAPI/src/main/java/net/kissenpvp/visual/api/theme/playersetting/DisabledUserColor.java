@@ -18,7 +18,7 @@
 
 package net.kissenpvp.visual.api.theme.playersetting;
 
-import net.kissenpvp.paper.api.user.playersetting.PlayerSetting;
+import net.kissenpvp.pulvinar.api.user.playersetting.PlayerSetting;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 public interface DisabledUserColor extends PlayerSetting<NamedTextColor> { }

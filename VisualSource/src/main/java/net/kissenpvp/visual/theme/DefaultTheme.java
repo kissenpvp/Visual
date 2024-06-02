@@ -35,27 +35,27 @@ public class DefaultTheme implements Theme {
 
     @Override
     public @NotNull TextColor getPrimaryAccentColor() {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultPrimaryColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultPrimaryColor.class);
     }
 
     @Override
     public @NotNull TextColor getSecondaryAccentColor() {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSecondaryColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSecondaryColor.class);
     }
 
     @Override
     public @NotNull TextColor getGeneralColor() {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(GeneralColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(GeneralColor.class);
     }
 
     @Override
     public @NotNull TextColor getEnabledColor() {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultEnabledColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultEnabledColor.class);
     }
 
     @Override
     public @NotNull TextColor getDisabledColor() {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultDisabledColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultDisabledColor.class);
     }
 
     /**

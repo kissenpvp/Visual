@@ -24,8 +24,8 @@ import net.kissenpvp.core.api.database.savable.Savable;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
-import net.kissenpvp.paper.api.networking.client.entity.PaperPlayerClient;
-import net.kissenpvp.paper.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.networking.client.entity.PulvinarPlayerClient;
+import net.kissenpvp.pulvinar.api.user.rank.Rank;
 import net.kissenpvp.visual.api.Visual;
 import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kissenpvp.visual.api.entity.VisualPlayer;
@@ -80,7 +80,11 @@ public class InternalVisual extends JavaPlugin implements Visual {
         // listener
         EventListener<VisualChangeEvent> visualChangeEvent = (event) -> kissenTabRender.update();
         EventListener<AsyncChatEvent> chatEvent = (event) -> event.renderer(kissenChatRenderer);
-        EventListener<PlayerJoinEvent> joinEvent = (event) -> event.joinMessage(getMessage(true, event.getPlayer()));
+        EventListener<PlayerJoinEvent> joinEvent = (event) ->
+        {
+            kissenTabRender.update();
+            event.joinMessage(getMessage(true, event.getPlayer()));
+        };
         EventListener<PlayerQuitEvent> quitEvent = (event) -> event.quitMessage(getMessage(false, event.getPlayer()));
         pluginManager.registerEvents(visualChangeEvent, this);
         pluginManager.registerEvents(chatEvent, this);
@@ -175,10 +179,10 @@ public class InternalVisual extends JavaPlugin implements Visual {
      * @see DefaultSystemPrefix
      */
     private @NotNull String getPersonalisedPrefix(@NotNull ServerEntity serverEntity) {
-        if (serverEntity instanceof PaperPlayerClient player) {
+        if (serverEntity instanceof PulvinarPlayerClient player) {
             return player.getSetting(KissenSystemPrefix.class).getValue();
         }
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSystemPrefix.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSystemPrefix.class);
     }
 
     /**

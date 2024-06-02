@@ -21,11 +21,15 @@ package net.kissenpvp.visual.suffix;
 import net.kissenpvp.core.api.time.TemporalObject;
 import net.kissenpvp.core.api.user.playersettting.UserValue;
 import net.kissenpvp.visual.InternalVisual;
+import net.kissenpvp.visual.api.event.VisualChangeEvent;
 import net.kissenpvp.visual.api.suffix.Suffix;
 import net.kissenpvp.visual.api.suffix.playersetting.SuffixSetting;
 import net.kissenpvp.visual.entity.KissenVisualPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -70,5 +74,21 @@ public class KissenSuffixSetting implements SuffixSetting
         Set<UserValue<String>> settings = suffixStream.map(transform).collect(Collectors.toSet());
         settings.add(new UserValue<>("none"));
         return settings.toArray(UserValue[]::new);
+    }
+
+    private static void visualUpdate(@NotNull OfflinePlayer player) {
+        if (player instanceof Player actualPlayer) {
+            Bukkit.getPluginManager().callEvent(new VisualChangeEvent(actualPlayer));
+        }
+    }
+
+    @Override
+    public void setValue(@NotNull OfflinePlayer player, @Nullable String value) {
+        visualUpdate(player);
+    }
+
+    @Override
+    public void reset(@NotNull OfflinePlayer player) {
+        visualUpdate(player);
     }
 }

@@ -19,7 +19,7 @@
 package net.kissenpvp.visual.theme.playersettings;
 
 import net.kissenpvp.core.api.user.playersettting.UserValue;
-import net.kissenpvp.paper.api.user.playersetting.PlayerSetting;
+import net.kissenpvp.pulvinar.api.user.playersetting.PlayerSetting;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;

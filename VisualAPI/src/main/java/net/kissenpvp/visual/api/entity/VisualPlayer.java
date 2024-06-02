@@ -20,7 +20,7 @@ package net.kissenpvp.visual.api.entity;
 
 import net.kissenpvp.core.api.event.EventCancelledException;
 import net.kissenpvp.core.api.time.AccurateDuration;
-import net.kissenpvp.paper.api.base.Context;
+import net.kissenpvp.pulvinar.api.base.Context;
 import net.kissenpvp.visual.api.suffix.Suffix;
 import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;

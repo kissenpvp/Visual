@@ -34,6 +34,6 @@ public class KissenDisabledUserColor extends UserColorSetting implements Disable
 
     @Override
     public @NotNull NamedTextColor getDefaultValue(@NotNull OfflinePlayer playerClient) {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultDisabledColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultDisabledColor.class);
     }
 }

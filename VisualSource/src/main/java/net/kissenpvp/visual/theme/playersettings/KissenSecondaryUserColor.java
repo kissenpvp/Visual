@@ -34,6 +34,6 @@ public class KissenSecondaryUserColor extends UserColorSetting implements Second
 
     @Override
     public @NotNull NamedTextColor getDefaultValue(@NotNull OfflinePlayer playerClient) {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSecondaryColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSecondaryColor.class);
     }
 }

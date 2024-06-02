@@ -18,8 +18,8 @@
 
 package net.kissenpvp.visual.api.rank;
 
-import net.kissenpvp.paper.api.command.ArgumentParser;
-import net.kissenpvp.paper.api.user.rank.RankParser;
+import net.kissenpvp.pulvinar.api.command.ArgumentParser;
+import net.kissenpvp.pulvinar.api.user.rank.RankParser;
 import net.kissenpvp.visual.api.Visual;
 import org.jetbrains.annotations.NotNull;
 

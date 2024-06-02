@@ -19,7 +19,7 @@
 package net.kissenpvp.visual.api;
 
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
-import net.kissenpvp.paper.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.user.rank.Rank;
 import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kissenpvp.visual.api.rank.VisualRank;
 import org.jetbrains.annotations.NotNull;

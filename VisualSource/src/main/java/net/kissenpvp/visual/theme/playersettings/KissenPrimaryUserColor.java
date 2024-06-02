@@ -36,6 +36,6 @@ public class KissenPrimaryUserColor extends UserColorSetting implements PrimaryU
     @Override
     public @NotNull NamedTextColor getDefaultValue(@NotNull OfflinePlayer playerClient)
     {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultPrimaryColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultPrimaryColor.class);
     }
 }

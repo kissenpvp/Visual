@@ -20,13 +20,13 @@ package net.kissenpvp.visual.rank;
 
 import net.kissenpvp.core.api.database.meta.BackendException;
 import net.kissenpvp.core.api.event.EventCancelledException;
-import net.kissenpvp.paper.api.networking.client.entity.PaperPlayerClient;
-import net.kissenpvp.paper.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.user.rank.Rank;
 import net.kissenpvp.visual.api.rank.VisualRank;
 import net.kissenpvp.visual.api.theme.ThemeProvider;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -103,7 +103,7 @@ public record KissenVisualRankFallBack(@NotNull Rank rank) implements VisualRank
     }
 
     @Override
-    public @NotNull @Unmodifiable Set<PaperPlayerClient> getPlayers() {
+    public @NotNull @Unmodifiable Set<OfflinePlayer> getPlayers() {
         return rank().getPlayers();
     }
 }

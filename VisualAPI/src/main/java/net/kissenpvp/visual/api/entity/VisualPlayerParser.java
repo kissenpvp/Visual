@@ -19,8 +19,8 @@
 package net.kissenpvp.visual.api.entity;
 
 import net.kissenpvp.core.api.command.CommandPayload;
-import net.kissenpvp.paper.api.command.ArgumentParser;
-import net.kissenpvp.paper.api.command.parser.OfflinePlayerParser;
+import net.kissenpvp.pulvinar.api.command.ArgumentParser;
+import net.kissenpvp.pulvinar.api.command.parser.OfflinePlayerParser;
 import net.kissenpvp.visual.api.Visual;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

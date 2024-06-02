@@ -34,6 +34,6 @@ public class KissenEnabledUserColor extends UserColorSetting implements EnabledU
 
     @Override
     public @NotNull NamedTextColor getDefaultValue(@NotNull OfflinePlayer playerClient) {
-        return Bukkit.getKissen().getImplementation(ConfigurationImplementation.class).getSetting(DefaultEnabledColor.class);
+        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultEnabledColor.class);
     }
 }

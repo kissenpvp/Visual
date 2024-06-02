@@ -19,7 +19,7 @@
 package net.kissenpvp.visual.api.rank;
 
 import net.kissenpvp.core.api.event.EventCancelledException;
-import net.kissenpvp.paper.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.user.rank.Rank;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.NotNull;

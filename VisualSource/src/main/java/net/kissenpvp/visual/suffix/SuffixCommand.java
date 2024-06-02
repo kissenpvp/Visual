@@ -45,7 +45,7 @@ public class SuffixCommand {
             String mounted = String.join(" ", suffix).replace('&', '§');
             Component suffixComponent = LegacyComponentSerializer.legacySection().deserialize(mounted);
 
-            TimeImplementation timeImplementation = Bukkit.getKissen().getImplementation(TimeImplementation.class);
+            TimeImplementation timeImplementation = Bukkit.getPulvinar().getImplementation(TimeImplementation.class);
             player.grantSuffix(name, suffixComponent);
 
             Component suffixName = Component.text(name);
