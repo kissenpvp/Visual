@@ -18,14 +18,14 @@
 
 package net.kissenpvp.visual.theme;
 
-import net.kissenpvp.core.api.config.ConfigurationImplementation;
+import lombok.Getter;
+import lombok.Setter;
 import net.kissenpvp.visual.api.theme.Theme;
 import net.kissenpvp.visual.api.theme.ThemeProvider;
-import net.kissenpvp.visual.theme.settings.*;
 import net.kyori.adventure.text.*;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -33,29 +33,33 @@ import java.util.function.Function;
 
 public class DefaultTheme implements Theme {
 
+    @Getter @Setter
+    private static NamedTextColor defaultPrimaryColor, defaultSecondaryColor, defaultGeneralColor, defaultEnabledColor, defaultDisabledColor;
+
+
     @Override
-    public @NotNull TextColor getPrimaryAccentColor() {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultPrimaryColor.class);
+    public @NotNull TextColor getPrimaryColor() {
+        return defaultPrimaryColor;
     }
 
     @Override
-    public @NotNull TextColor getSecondaryAccentColor() {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSecondaryColor.class);
+    public @NotNull TextColor getSecondaryColor() {
+        return defaultSecondaryColor;
     }
 
     @Override
     public @NotNull TextColor getGeneralColor() {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(GeneralColor.class);
+        return defaultGeneralColor;
     }
 
     @Override
     public @NotNull TextColor getEnabledColor() {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultEnabledColor.class);
+        return defaultEnabledColor;
     }
 
     @Override
     public @NotNull TextColor getDisabledColor() {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultDisabledColor.class);
+        return defaultDisabledColor;
     }
 
     /**
@@ -135,8 +139,8 @@ public class DefaultTheme implements Theme {
                     continue;
                 }
                 switch (textPassage.substring(0, 1).toLowerCase()) {
-                    case "p" -> replacements.put(textPassage.substring(1), getPrimaryAccentColor());
-                    case "s" -> replacements.put(textPassage.substring(1), getSecondaryAccentColor());
+                    case "p" -> replacements.put(textPassage.substring(1), getPrimaryColor());
+                    case "s" -> replacements.put(textPassage.substring(1), getSecondaryColor());
                     case "t" -> replacements.put(textPassage.substring(1), getGeneralColor());
                     case "+" -> replacements.put(textPassage.substring(1), getEnabledColor());
                     case "-" -> replacements.put(textPassage.substring(1), getDisabledColor());
@@ -163,7 +167,7 @@ public class DefaultTheme implements Theme {
      * @throws NullPointerException if the ColorProviderImplementation is null.
      */
     private @NotNull TextColor getPersonalColorByCode(int value) {
-        Map<TextColor, TextColor> colorMap = Map.of(ThemeProvider.primary(), getPrimaryAccentColor(), ThemeProvider.secondary(), getSecondaryAccentColor(), ThemeProvider.general(), getGeneralColor(), ThemeProvider.enabled(), getEnabledColor(), ThemeProvider.disabled(), getDisabledColor());
+        Map<TextColor, TextColor> colorMap = Map.of(ThemeProvider.primary(), getPrimaryColor(), ThemeProvider.secondary(), getSecondaryColor(), ThemeProvider.general(), getGeneralColor(), ThemeProvider.enabled(), getEnabledColor(), ThemeProvider.disabled(), getDisabledColor());
         TextColor color = TextColor.color(value);
 
         return Optional.ofNullable(colorMap.get(color)).orElse(color);
@@ -175,6 +179,6 @@ public class DefaultTheme implements Theme {
     }
 
     protected @NotNull TextColor highlightColor() {
-        return getPrimaryAccentColor();
+        return getPrimaryColor();
     }
 }

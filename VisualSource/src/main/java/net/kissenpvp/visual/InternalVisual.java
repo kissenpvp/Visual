@@ -19,7 +19,8 @@
 package net.kissenpvp.visual;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kissenpvp.core.api.config.ConfigurationImplementation;
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.kissenpvp.core.api.database.savable.Savable;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
@@ -46,11 +47,11 @@ import net.kissenpvp.visual.renderer.KissenSystemMessageListener;
 import net.kissenpvp.visual.renderer.KissenTabRender;
 import net.kissenpvp.visual.suffix.KissenSuffixSetting;
 import net.kissenpvp.visual.suffix.SuffixCommand;
+import net.kissenpvp.visual.theme.DefaultTheme;
 import net.kissenpvp.visual.theme.playersettings.*;
-import net.kissenpvp.visual.theme.settings.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -58,7 +59,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.text.MessageFormat;
+import java.util.Objects;
 
 /**
  * Main class for the Visual plugin in Kissen.
@@ -69,20 +72,23 @@ import java.text.MessageFormat;
  *
  * @see JavaPlugin
  */
+
 public class InternalVisual extends JavaPlugin implements Visual {
+
+    @Getter(AccessLevel.PROTECTED) private KissenTabRender tabRender;
+    @Getter private String defaultPrefix;
 
     @Override
     public void onEnable() {
-        KissenTabRender kissenTabRender = new KissenTabRender();
+        tabRender = new KissenTabRender();
         KissenChatRenderer kissenChatRenderer = new KissenChatRenderer();
         PluginManager pluginManager = getServer().getPluginManager();
 
         // listener
-        EventListener<VisualChangeEvent> visualChangeEvent = (event) -> kissenTabRender.update();
+        EventListener<VisualChangeEvent> visualChangeEvent = (event) -> getTabRender().update();
         EventListener<AsyncChatEvent> chatEvent = (event) -> event.renderer(kissenChatRenderer);
-        EventListener<PlayerJoinEvent> joinEvent = (event) ->
-        {
-            kissenTabRender.update();
+        EventListener<PlayerJoinEvent> joinEvent = (event) -> {
+            getTabRender().update();
             event.joinMessage(getMessage(true, event.getPlayer()));
         };
         EventListener<PlayerQuitEvent> quitEvent = (event) -> event.quitMessage(getMessage(false, event.getPlayer()));
@@ -109,18 +115,28 @@ public class InternalVisual extends JavaPlugin implements Visual {
         pluginManager.registerPlayerSetting(new KissenHighlightVariables(), this);
         pluginManager.registerPlayerSetting(new KissenSuffixSetting(), this);
 
-        // settings
-        pluginManager.registerSetting(new DefaultSystemPrefix(), this);
-        pluginManager.registerSetting(new DefaultPrimaryColor(), this);
-        pluginManager.registerSetting(new DefaultSecondaryColor(), this);
-        pluginManager.registerSetting(new GeneralColor(), this);
-        pluginManager.registerSetting(new DefaultEnabledColor(), this);
-        pluginManager.registerSetting(new DefaultDisabledColor(), this);
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (getDataFolder().mkdirs() || !configFile.exists()) {
+            this.saveDefaultConfig();
+        }
+
+        this.defaultPrefix = getConfig().getString("system_prefix");
+        DefaultTheme.setDefaultPrimaryColor(getColorValue("primary", NamedTextColor.YELLOW));
+        DefaultTheme.setDefaultSecondaryColor(getColorValue("secondary", NamedTextColor.GOLD));
+        DefaultTheme.setDefaultGeneralColor(getColorValue("general", NamedTextColor.GRAY));
+        DefaultTheme.setDefaultEnabledColor(getColorValue("enabled", NamedTextColor.GREEN));
+        DefaultTheme.setDefaultDisabledColor(getColorValue("disabled", NamedTextColor.RED));
+        this.saveConfig();
 
         // localization
         String split = " " + "-".repeat(20) + " ";
         pluginManager.registerTranslation("visual.tab.header", new MessageFormat("- {0} - \nOnline Players: {1}/{2}\n" + split + "\n"), this);
         pluginManager.registerTranslation("visual.tab.footer", new MessageFormat("\n " + split + "\nYour Ping: {0}ms"), this);
+    }
+
+    @Override
+    public void onDisable() {
+        getTabRender().shutdown();
     }
 
     @Override
@@ -156,8 +172,8 @@ public class InternalVisual extends JavaPlugin implements Visual {
 
         VisualEntity<?> entity = getEntity(serverEntity);
 
-        String primary = entity.getTheme().getPrimaryAccentColor().asHexString();
-        String secondary = entity.getTheme().getSecondaryAccentColor().asHexString();
+        String primary = entity.getTheme().getPrimaryColor().asHexString();
+        String secondary = entity.getTheme().getSecondaryColor().asHexString();
         String gradientTemplate = "<gradient:%s:%s>%s</gradient>";
         String prefix = gradientTemplate.formatted(primary, secondary, getPersonalisedPrefix(serverEntity));
 
@@ -176,13 +192,13 @@ public class InternalVisual extends JavaPlugin implements Visual {
      * @throws NullPointerException if the provided {@link ServerEntity} is `null`
      * @see PlayerClient
      * @see KissenSystemPrefix
-     * @see DefaultSystemPrefix
+     * @see #getDefaultPrefix()
      */
     private @NotNull String getPersonalisedPrefix(@NotNull ServerEntity serverEntity) {
         if (serverEntity instanceof PulvinarPlayerClient player) {
             return player.getSetting(KissenSystemPrefix.class).getValue();
         }
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSystemPrefix.class);
+        return getDefaultPrefix();
     }
 
     /**
@@ -200,5 +216,19 @@ public class InternalVisual extends JavaPlugin implements Visual {
      */
     private @NotNull Component getMessage(boolean join, @NotNull Player player) {
         return Component.translatable("multiplayer.player." + (join ? "joined":"left"), getEntity(player).styledName());
+    }
+
+    private @NotNull NamedTextColor getColorValue(@NotNull String key, @NotNull NamedTextColor defaultColor) {
+        String memoryKey = String.format("appearance.%s", key);
+
+        if (getConfig().contains(memoryKey)) {
+            String value = getConfig().getString(String.format("appearance.%s", key));
+            NamedTextColor color = NamedTextColor.NAMES.value(value);
+            if (Objects.nonNull(color)) {
+                return color;
+            }
+        }
+        getConfig().set(memoryKey, defaultColor);
+        return defaultColor;
     }
 }

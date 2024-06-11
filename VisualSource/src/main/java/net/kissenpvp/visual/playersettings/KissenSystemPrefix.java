@@ -18,12 +18,10 @@
 
 package net.kissenpvp.visual.playersettings;
 
-import net.kissenpvp.core.api.config.ConfigurationImplementation;
 import net.kissenpvp.core.api.user.playersettting.UserValue;
 import net.kissenpvp.pulvinar.api.permission.Permission;
+import net.kissenpvp.visual.InternalVisual;
 import net.kissenpvp.visual.api.playersetting.SystemPrefix;
-import net.kissenpvp.visual.theme.settings.DefaultSystemPrefix;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +35,7 @@ public class KissenSystemPrefix implements SystemPrefix {
 
     @Override
     public @NotNull String getDefaultValue(@NotNull OfflinePlayer playerClient) {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(DefaultSystemPrefix.class);
+        return InternalVisual.getPlugin(InternalVisual.class).getDefaultPrefix();
     }
 
     @Override

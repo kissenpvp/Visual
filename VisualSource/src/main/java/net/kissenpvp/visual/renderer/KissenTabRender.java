@@ -46,6 +46,8 @@ import java.util.Optional;
  */
 public class KissenTabRender {
 
+    private int taskID;
+
     /**
      * Constructs a new instance of KissenTabRender and initializes the tab rendering.
      *
@@ -58,10 +60,10 @@ public class KissenTabRender {
         final TranslatableComponent footer = Component.translatable("visual.tab.footer");
         final InternalVisual internalVisual = InternalVisual.getPlugin(InternalVisual.class);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(InternalVisual.getPlugin(InternalVisual.class), () -> Bukkit.getOnlinePlayers().forEach(player -> {
+        taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(InternalVisual.getPlugin(InternalVisual.class), () -> Bukkit.getOnlinePlayers().forEach(player -> {
             VisualEntity<?> visualPlayer = internalVisual.getEntity(player);
-            String primary = visualPlayer.getTheme().getPrimaryAccentColor().asHexString();
-            String secondary = visualPlayer.getTheme().getSecondaryAccentColor().asHexString();
+            String primary = visualPlayer.getTheme().getPrimaryColor().asHexString();
+            String secondary = visualPlayer.getTheme().getSecondaryColor().asHexString();
 
             Component prefix = internalVisual.getPrefix(player);
 
@@ -71,6 +73,10 @@ public class KissenTabRender {
             player.sendPlayerListHeader(visualPlayer.getTheme().style(header.arguments(headerArguments)));
             player.sendPlayerListFooter(visualPlayer.getTheme().style(footer.arguments(footerArguments)));
         }), 0, 20);
+    }
+
+    public void shutdown() {
+        Bukkit.getScheduler().cancelTask(taskID);
     }
 
     public void update() {

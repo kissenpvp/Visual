@@ -36,13 +36,13 @@ public class PlayerTheme extends DefaultTheme {
     private final Player player;
 
     @Override
-    public @NotNull TextColor getPrimaryAccentColor() {
+    public @NotNull TextColor getPrimaryColor() {
         return getPlayer().getSetting(PrimaryUserColor.class).getValue();
     }
 
 
     @Override
-    public @NotNull TextColor getSecondaryAccentColor() {
+    public @NotNull TextColor getSecondaryColor() {
         return getPlayer().getSetting(SecondaryUserColor.class).getValue();
     }
 
@@ -71,6 +71,6 @@ public class PlayerTheme extends DefaultTheme {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getPrimaryAccentColor(), getSecondaryAccentColor(), getGeneralColor(), getDisabledColor(), getEnabledColor());
+        return Objects.hash(getPrimaryColor(), this.getSecondaryColor(), getGeneralColor(), getDisabledColor(), getEnabledColor());
     }
 }

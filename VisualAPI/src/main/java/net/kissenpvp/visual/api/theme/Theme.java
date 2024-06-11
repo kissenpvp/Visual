@@ -24,9 +24,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface Theme
 {
-    @NotNull TextColor getPrimaryAccentColor();
+    @NotNull TextColor getPrimaryColor();
 
-    @NotNull TextColor getSecondaryAccentColor();
+    @NotNull TextColor getSecondaryColor();
 
     @NotNull TextColor getGeneralColor();
 

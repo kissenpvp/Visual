@@ -18,12 +18,10 @@
 
 package net.kissenpvp.visual.theme.playersettings;
 
-import net.kissenpvp.core.api.config.ConfigurationImplementation;
 import net.kissenpvp.core.api.user.playersettting.UserValue;
 import net.kissenpvp.visual.api.theme.playersetting.GeneralUserColor;
-import net.kissenpvp.visual.theme.settings.GeneralColor;
+import net.kissenpvp.visual.theme.DefaultTheme;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +33,7 @@ public class KissenGeneralUserColor extends UserColorSetting implements GeneralU
 
     @Override
     public @NotNull NamedTextColor getDefaultValue(@NotNull OfflinePlayer playerClient) {
-        return Bukkit.getPulvinar().getImplementation(ConfigurationImplementation.class).getSetting(GeneralColor.class);
+        return DefaultTheme.getDefaultGeneralColor();
     }
 
     @Override
