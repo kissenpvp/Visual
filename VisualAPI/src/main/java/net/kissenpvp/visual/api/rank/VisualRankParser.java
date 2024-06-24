@@ -18,10 +18,18 @@
 
 package net.kissenpvp.visual.api.rank;
 
+import net.kissenpvp.core.api.command.CommandPayload;
+import net.kissenpvp.core.api.user.rank.AbstractRank;
 import net.kissenpvp.pulvinar.api.command.ArgumentParser;
+import net.kissenpvp.pulvinar.api.user.rank.RankImplementation;
 import net.kissenpvp.pulvinar.api.user.rank.RankParser;
 import net.kissenpvp.visual.api.Visual;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class VisualRankParser implements ArgumentParser<VisualRank> {
 
@@ -50,5 +58,11 @@ public class VisualRankParser implements ArgumentParser<VisualRank> {
     public @NotNull VisualRank deserialize(@NotNull String input) {
 
         return getVisual().getRankData(getParent().deserialize(input));
+    }
+
+    @Override public @NotNull Collection<String> tabCompletion(@NotNull CommandPayload<CommandSender> commandPayload)
+    {
+        RankImplementation rankImplementation = Bukkit.getPulvinar().getImplementation(RankImplementation.class);
+        return rankImplementation.getRankTemplates().stream().map(AbstractRank::getName).collect(Collectors.toUnmodifiableSet());
     }
 }
