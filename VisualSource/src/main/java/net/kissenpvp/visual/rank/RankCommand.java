@@ -39,7 +39,12 @@ public class RankCommand {
         return text;
     }
 
-    @CommandData(value = "rank.edit.prefix")
+    @CommandData(value = "rankedit.prefix")
+    public void rankPrefix() {
+        throw new ArgumentMissingException();
+    }
+
+    @CommandData(value = "rankedit.prefix")
     public void rankPrefix(@NotNull CommandPayload<CommandSender> commandPayload, @NotNull VisualRank paperRank, @NotNull @ArgumentName("prefix") String[] prefix) {
         Component prefixComponent = LegacyComponentSerializer.legacySection().deserialize(translateComponent(prefix));
         paperRank.setPrefix(prefixComponent);
@@ -48,15 +53,15 @@ public class RankCommand {
         commandPayload.getSender().sendMessage(Component.translatable("server.rank.edit.prefix.set", args));
     }
 
-    @CommandData(value = "rank.edit.prefix.remove")
+/*    @CommandData(value = "rankedit.prefix.remove")
     public void rankPrefix(@NotNull CommandPayload<CommandSender> commandPayload, @NotNull VisualRank paperRank) {
         paperRank.unsetPrefix();
 
         Component[] args = {Component.text(paperRank.getName()), Component.text("none")};
         commandPayload.getSender().sendMessage(Component.translatable("server.rank.edit.prefix.set", args));
-    }
+    }*/
 
-    @CommandData(value = "rank.edit.suffix")
+    @CommandData(value = "rankedit.suffix")
     public void rankSuffix(@NotNull CommandPayload<CommandSender> commandPayload, @NotNull VisualRank paperRank, @NotNull @ArgumentName("suffix") String[] suffix) {
         Component suffixComponent = LegacyComponentSerializer.legacySection().deserialize(translateComponent(suffix));
         paperRank.setSuffix(suffixComponent);
@@ -65,15 +70,15 @@ public class RankCommand {
         commandPayload.getSender().sendMessage(Component.translatable("server.rank.edit.suffix.set", args));
     }
 
-    @CommandData(value = "rank.edit.suffix.remove")
+/*    @CommandData(value = "rankedit.suffix.remove")
     public void rankSuffix(@NotNull CommandPayload<CommandSender> commandPayload, @NotNull VisualRank paperRank) {
         paperRank.unsetSuffix();
 
         Component[] args = {Component.text(paperRank.getName()), Component.text("none")};
         commandPayload.getSender().sendMessage(Component.translatable("server.rank.edit.suffix.set", args));
-    }
+    }*/
 
-    @CommandData(value = "rank.edit.chatcolor")
+    @CommandData(value = "rankedit.chatcolor")
     public void rankRevoke(@NotNull CommandPayload<CommandSender> commandPayload, @NotNull VisualRank paperRank, @NotNull NamedTextColor namedTextColor) {
         paperRank.setColor(namedTextColor);
 
