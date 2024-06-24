@@ -25,7 +25,7 @@ plugins {
 }
 
 group = "net.kissenpvp"
-version = "1.6.4-SNAPSHOT"
+version = "1.6.5-SNAPSHOT"
 
 configurations {
     create("includeLib")
@@ -87,7 +87,7 @@ subprojects {
     dependencies {
         testImplementation(platform("org.junit:junit-bom:5.9.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")
-        compileOnly("net.kissenpvp.pulvinar:pulvinar-api:1.20.6-R0.1-20240523.164127-1")
+        implementation("net.kissenpvp.pulvinar:pulvinar-api:1.21-R0.1-20240624.120044-1")
 
         testCompileOnly("org.jetbrains:annotations:24.0.0")
     }
