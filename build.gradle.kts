@@ -33,7 +33,7 @@ configurations {
 
 repositories {
     mavenCentral()
-    maven("https://repo.kissenpvp.net/repository/maven-public/")
+    maven("https://repo.kissenpvp.net/snapshots")
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 
@@ -61,7 +61,7 @@ allprojects {
 subprojects {
     repositories {
         mavenCentral()
-        maven("https://repo.kissenpvp.net/repository/maven-public/")
+        maven("https://repo.kissenpvp.net/snapshots")
         maven("https://repo.papermc.io/repository/maven-public/")
     }
 
@@ -87,7 +87,7 @@ subprojects {
     dependencies {
         testImplementation(platform("org.junit:junit-bom:5.9.1"))
         testImplementation("org.junit.jupiter:junit-jupiter")
-        implementation("net.kissenpvp.pulvinar:pulvinar-api:1.21-R0.1-20240624.120044-1")
+        compileOnly("net.kissenpvp.pulvinar:pulvinar-api:1.21-R0.1-SNAPSHOT")
 
         testCompileOnly("org.jetbrains:annotations:24.0.0")
     }
