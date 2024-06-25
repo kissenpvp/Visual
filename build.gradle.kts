@@ -34,7 +34,6 @@ configurations {
 repositories {
     mavenCentral()
     maven("https://repo.kissenpvp.net/snapshots")
-    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 allprojects {
@@ -62,7 +61,6 @@ subprojects {
     repositories {
         mavenCentral()
         maven("https://repo.kissenpvp.net/snapshots")
-        maven("https://repo.papermc.io/repository/maven-public/")
     }
 
     tasks.withType<JavaCompile> {
