@@ -24,23 +24,18 @@ import net.kissenpvp.core.api.database.savable.SavableMap;
 import net.kissenpvp.core.api.event.EventCancelledException;
 import net.kissenpvp.pulvinar.api.user.rank.Rank;
 import net.kissenpvp.visual.InternalVisual;
-import net.kissenpvp.visual.api.event.VisualChangeEvent;
 import net.kissenpvp.visual.api.rank.VisualRank;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
 
@@ -137,12 +132,6 @@ public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
     }
 
     private void callVisualChangeEvent() {
-        Predicate<Player> hasRank = player -> Objects.equals(player.getRank().getSource(), rank());
-        Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () -> {
-            Bukkit.getOnlinePlayers().stream().filter(hasRank).forEach(player -> {
-                VisualChangeEvent visualChangeEvent = new VisualChangeEvent(player);
-                Bukkit.getPluginManager().callEvent(visualChangeEvent);
-            });
-        });
+        InternalVisual.getPlugin(InternalVisual.class).callVisualChangeEvent(rank());
     }
 }

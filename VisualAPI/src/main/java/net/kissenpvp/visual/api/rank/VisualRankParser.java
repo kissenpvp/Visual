@@ -27,6 +27,7 @@ import net.kissenpvp.visual.api.Visual;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -39,6 +40,11 @@ public class VisualRankParser implements ArgumentParser<VisualRank> {
     public VisualRankParser(@NotNull Visual visual) {
         this.visual = visual;
         this.parent = new RankParser();
+    }
+
+    @Override public @Nullable String argumentName()
+    {
+        return "rank";
     }
 
     protected @NotNull Visual getVisual() {

@@ -25,8 +25,11 @@ import net.kissenpvp.core.api.database.savable.Savable;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
+import net.kissenpvp.core.api.user.rank.event.AbstractPlayerRankEvent;
 import net.kissenpvp.pulvinar.api.networking.client.entity.PulvinarPlayerClient;
+import net.kissenpvp.pulvinar.api.user.rank.PlayerRank;
 import net.kissenpvp.pulvinar.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.user.rank.event.RankEvent;
 import net.kissenpvp.visual.api.Visual;
 import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kissenpvp.visual.api.entity.VisualPlayer;
@@ -52,6 +55,7 @@ import net.kissenpvp.visual.theme.playersettings.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -62,6 +66,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * Main class for the Visual plugin in Kissen.
@@ -92,10 +97,14 @@ public class InternalVisual extends JavaPlugin implements Visual {
             event.joinMessage(getMessage(true, event.getPlayer()));
         };
         EventListener<PlayerQuitEvent> quitEvent = (event) -> event.quitMessage(getMessage(false, event.getPlayer()));
+        EventListener<RankEvent> rankEvent = (event) -> callVisualChangeEvent(event.getRankTemplate());
+        EventListener<AbstractPlayerRankEvent<PlayerRank>> playerRankEvent = (event) -> callVisualChangeEvent(event.getPlayerRank().getSource());
         pluginManager.registerEvents(visualChangeEvent, this);
         pluginManager.registerEvents(chatEvent, this);
         pluginManager.registerEvents(joinEvent, this);
         pluginManager.registerEvents(quitEvent, this);
+        pluginManager.registerEvents(rankEvent, this);
+        pluginManager.registerEvents(playerRankEvent, this);
         pluginManager.registerEvents(new KissenSystemMessageListener(), this);
 
         // commands
@@ -153,6 +162,16 @@ public class InternalVisual extends JavaPlugin implements Visual {
             return (VisualEntity<T>) player.getUser().getStorage().computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
         }
         return new KissenVisualEntity<>(entity);
+    }
+
+    public void callVisualChangeEvent(@NotNull Rank rank) {
+        Predicate<Player> hasRank = player -> Objects.equals(player.getRank().getSource(), rank);
+        Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () -> {
+            Bukkit.getOnlinePlayers().stream().filter(hasRank).forEach(player -> {
+                VisualChangeEvent visualChangeEvent = new VisualChangeEvent(player);
+                Bukkit.getPluginManager().callEvent(visualChangeEvent);
+            });
+        });
     }
 
     /**
