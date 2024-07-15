@@ -25,10 +25,9 @@ import net.kissenpvp.core.api.database.savable.Savable;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
-import net.kissenpvp.core.api.user.rank.event.AbstractPlayerRankEvent;
 import net.kissenpvp.pulvinar.api.networking.client.entity.PulvinarPlayerClient;
-import net.kissenpvp.pulvinar.api.user.rank.PlayerRank;
 import net.kissenpvp.pulvinar.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.user.rank.event.PlayerRankEvent;
 import net.kissenpvp.pulvinar.api.user.rank.event.RankEvent;
 import net.kissenpvp.visual.api.Visual;
 import net.kissenpvp.visual.api.entity.VisualEntity;
@@ -72,19 +71,30 @@ import java.util.function.Predicate;
  * Main class for the Visual plugin in Kissen.
  *
  * <p>The {@code Visual} class extends {@link JavaPlugin} and handles the initialization and setup of various components
- * such as tab rendering, chat rendering, and event listeners. It also registers player and system settings, translations,
+ * such as tab rendering, chat rendering, and event listeners. It also registers player and system settings,
+ * translations,
  * and provides join and quit messages.</p>
  *
  * @see JavaPlugin
  */
 
-public class InternalVisual extends JavaPlugin implements Visual {
+public class InternalVisual extends JavaPlugin implements Visual
+{
 
     @Getter(AccessLevel.PROTECTED) private KissenTabRender tabRender;
     @Getter private String defaultPrefix;
 
-    @Override
-    public void onEnable() {
+    private static void callVisualChangeEvent(@NotNull Player player)
+    {
+        Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () ->
+        {
+            VisualChangeEvent visualEvent = new VisualChangeEvent(player);
+            Bukkit.getPluginManager().callEvent(visualEvent);
+        });
+    }
+
+    @Override public void onEnable()
+    {
         tabRender = new KissenTabRender();
         KissenChatRenderer kissenChatRenderer = new KissenChatRenderer();
         PluginManager pluginManager = getServer().getPluginManager();
@@ -92,13 +102,20 @@ public class InternalVisual extends JavaPlugin implements Visual {
         // listener
         EventListener<VisualChangeEvent> visualChangeEvent = (event) -> getTabRender().update();
         EventListener<AsyncChatEvent> chatEvent = (event) -> event.renderer(kissenChatRenderer);
-        EventListener<PlayerJoinEvent> joinEvent = (event) -> {
+        EventListener<PlayerJoinEvent> joinEvent = (event) ->
+        {
             getTabRender().update();
             event.joinMessage(getMessage(true, event.getPlayer()));
         };
         EventListener<PlayerQuitEvent> quitEvent = (event) -> event.quitMessage(getMessage(false, event.getPlayer()));
         EventListener<RankEvent> rankEvent = (event) -> callVisualChangeEvent(event.getRankTemplate());
-        EventListener<AbstractPlayerRankEvent<PlayerRank>> playerRankEvent = (event) -> callVisualChangeEvent(event.getPlayerRank().getSource());
+        EventListener<PlayerRankEvent> playerRankEvent = (event) ->
+        {
+            if (event.getPlayerRank().getPlayer() instanceof Player player)
+            {
+                callVisualChangeEvent(player);
+            }
+        };
         pluginManager.registerEvents(visualChangeEvent, this);
         pluginManager.registerEvents(chatEvent, this);
         pluginManager.registerEvents(joinEvent, this);
@@ -125,7 +142,8 @@ public class InternalVisual extends JavaPlugin implements Visual {
         pluginManager.registerPlayerSetting(new KissenSuffixSetting(), this);
 
         File configFile = new File(getDataFolder(), "config.yml");
-        if (getDataFolder().mkdirs() || !configFile.exists()) {
+        if (getDataFolder().mkdirs() || !configFile.exists())
+        {
             this.saveDefaultConfig();
         }
 
@@ -139,46 +157,58 @@ public class InternalVisual extends JavaPlugin implements Visual {
 
         // localization
         String split = " " + "-".repeat(20) + " ";
-        pluginManager.registerTranslation("visual.tab.header", new MessageFormat("- {0} - \nOnline Players: {1}/{2}\n" + split + "\n"), this);
-        pluginManager.registerTranslation("visual.tab.footer", new MessageFormat("\n " + split + "\nYour Ping: {0}ms"), this);
+        pluginManager.registerTranslation("visual.tab.header",
+                new MessageFormat("- {0} - \nOnline Players: {1}/{2}\n" + split + "\n"),
+                this);
+        pluginManager.registerTranslation("visual.tab.footer",
+                new MessageFormat("\n " + split + "\nYour Ping: {0}ms"),
+                this);
     }
 
-    @Override
-    public void onDisable() {
+    @Override public void onDisable()
+    {
         getTabRender().shutdown();
     }
 
-    @Override
-    public @NotNull VisualRank getRankData(@NotNull Rank rank) {
-        if (!(rank instanceof Savable<?> savable)) {
+    @Override public @NotNull VisualRank getRankData(@NotNull Rank rank)
+    {
+        if (!(rank instanceof Savable<?> savable))
+        {
             return new KissenVisualRankFallBack(rank);
         }
         return new KissenVisualRank(rank);
     }
 
-    @Override
-    public <T extends ServerEntity> @NotNull VisualEntity<T> getEntity(@NotNull T entity) {
-        if (entity instanceof Player player) {
-            return (VisualEntity<T>) player.getUser().getStorage().computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
+    @Override public <T extends ServerEntity> @NotNull VisualEntity<T> getEntity(@NotNull T entity)
+    {
+        if (entity instanceof Player player)
+        {
+            return (VisualEntity<T>) player.getUser()
+                                           .getStorage()
+                                           .computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
         }
         return new KissenVisualEntity<>(entity);
     }
 
-    public void callVisualChangeEvent(@NotNull Rank rank) {
+    public void callVisualChangeEvent(@NotNull Rank rank)
+    {
         Predicate<Player> hasRank = player -> Objects.equals(player.getRank().getSource(), rank);
-        Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () -> {
-            Bukkit.getOnlinePlayers().stream().filter(hasRank).forEach(player -> {
-                VisualChangeEvent visualChangeEvent = new VisualChangeEvent(player);
-                Bukkit.getPluginManager().callEvent(visualChangeEvent);
-            });
-        });
+        Bukkit.getScheduler()
+              .runTask(InternalVisual.getPlugin(InternalVisual.class),
+                      () -> Bukkit.getOnlinePlayers().stream().filter(hasRank).forEach(player ->
+                      {
+                          VisualChangeEvent visualChangeEvent = new VisualChangeEvent(player);
+                          Bukkit.getPluginManager().callEvent(visualChangeEvent);
+                      }));
     }
 
     /**
      * Retrieves the prefix for a given {@link ServerEntity} with personalized content.
      *
-     * <p>The {@code getPrefix} method generates a formatted prefix based on the primary and secondary accent colors from the
-     * theme of the provided {@link ServerEntity}. The personalized content is obtained through the {@link #getPersonalisedPrefix(ServerEntity)}
+     * <p>The {@code getPrefix} method generates a formatted prefix based on the primary and secondary accent colors
+     * from the
+     * theme of the provided {@link ServerEntity}. The personalized content is obtained through the
+     * {@link #getPersonalisedPrefix(ServerEntity)}
      * method, and a gradient template is applied using the primary and secondary accent colors.</p>
      *
      * @param serverEntity the {@link ServerEntity} for which the prefix is generated
@@ -186,7 +216,8 @@ public class InternalVisual extends JavaPlugin implements Visual {
      * @throws NullPointerException if the provided {@link ServerEntity} is `null`
      * @see #getPersonalisedPrefix(ServerEntity)
      */
-    public @NotNull Component getPrefix(@NotNull ServerEntity serverEntity) {
+    public @NotNull Component getPrefix(@NotNull ServerEntity serverEntity)
+    {
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
         VisualEntity<?> entity = getEntity(serverEntity);
@@ -213,8 +244,10 @@ public class InternalVisual extends JavaPlugin implements Visual {
      * @see KissenSystemPrefix
      * @see #getDefaultPrefix()
      */
-    private @NotNull String getPersonalisedPrefix(@NotNull ServerEntity serverEntity) {
-        if (serverEntity instanceof PulvinarPlayerClient player) {
+    private @NotNull String getPersonalisedPrefix(@NotNull ServerEntity serverEntity)
+    {
+        if (serverEntity instanceof PulvinarPlayerClient player)
+        {
             return player.getSetting(KissenSystemPrefix.class).getValue();
         }
         return getDefaultPrefix();
@@ -233,17 +266,21 @@ public class InternalVisual extends JavaPlugin implements Visual {
      * @see Player
      * @see Component
      */
-    private @NotNull Component getMessage(boolean join, @NotNull Player player) {
+    private @NotNull Component getMessage(boolean join, @NotNull Player player)
+    {
         return Component.translatable("multiplayer.player." + (join ? "joined":"left"), getEntity(player).styledName());
     }
 
-    private @NotNull NamedTextColor getColorValue(@NotNull String key, @NotNull NamedTextColor defaultColor) {
+    private @NotNull NamedTextColor getColorValue(@NotNull String key, @NotNull NamedTextColor defaultColor)
+    {
         String memoryKey = String.format("appearance.%s", key);
 
-        if (getConfig().contains(memoryKey)) {
+        if (getConfig().contains(memoryKey))
+        {
             String value = getConfig().getString(String.format("appearance.%s", key));
             NamedTextColor color = NamedTextColor.NAMES.value(value);
-            if (Objects.nonNull(color)) {
+            if (Objects.nonNull(color))
+            {
                 return color;
             }
         }
