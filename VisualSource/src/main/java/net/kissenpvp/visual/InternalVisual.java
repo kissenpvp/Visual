@@ -27,8 +27,10 @@ import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
 import net.kissenpvp.pulvinar.api.networking.client.entity.PulvinarPlayerClient;
 import net.kissenpvp.pulvinar.api.user.rank.Rank;
+import net.kissenpvp.pulvinar.api.user.rank.event.AsyncRankExpiredEvent;
 import net.kissenpvp.pulvinar.api.user.rank.event.PlayerRankEvent;
 import net.kissenpvp.pulvinar.api.user.rank.event.RankEvent;
+import net.kissenpvp.pulvinar.api.user.rank.event.RankGrantEvent;
 import net.kissenpvp.visual.api.Visual;
 import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kissenpvp.visual.api.entity.VisualPlayer;
@@ -64,6 +66,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -84,13 +87,53 @@ public class InternalVisual extends JavaPlugin implements Visual
     @Getter(AccessLevel.PROTECTED) private KissenTabRender tabRender;
     @Getter private String defaultPrefix;
 
-    private static void callVisualChangeEvent(@NotNull Player player)
+    /**
+     * Triggers a visual change event for the specified player.
+     * <p>
+     * This static method creates a new {@link VisualChangeEvent} for the given {@link Player} and calls the event using
+     * Bukkit's event management system. It is intended to be used internally to handle the visual updates for players
+     * when their rank changes.
+     *
+     * @param player the player for whom the visual change event is triggered
+     * @throws NullPointerException if {@code player} is null
+     */
+    private static void visualEvent(@NotNull Player player)
     {
-        Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () ->
+        VisualChangeEvent visualEvent = new VisualChangeEvent(player);
+        Bukkit.getPluginManager().callEvent(visualEvent);
+    }
+
+    /**
+     * Creates an EventListener for PlayerRankEvent subclasses, which triggers a visual event for the player.
+     *
+     * <p>
+     * This method returns an {@link EventListener} that listens for events of the specified class type {@code clazz}
+     * that extend {@link PlayerRankEvent}. When such an event is detected, it checks if the event's player rank is
+     * associated
+     * with a {@link Player}. If the condition is met, it schedules a task to execute the
+     * {@link #visualEvent(Player)} method
+     * synchronously within the main thread using Bukkit's scheduler.
+     * <p>
+     * This method leverages generics to ensure type safety, allowing only subclasses of {@code PlayerRankEvent} to
+     * be passed
+     * to the listener. This pattern is useful for creating modular and reusable event handling mechanisms in Bukkit
+     * plugins.
+     *
+     * @param <T>   the type of {@link PlayerRankEvent} this listener will handle
+     * @param clazz the class object representing the type of event this listener should handle
+     * @return an {@link EventListener} that handles events of the specified type
+     * @throws NullPointerException if {@code clazz} is null
+     */
+    private <T extends PlayerRankEvent> @NotNull EventListener<T> playerRankEvent(@NotNull Class<T> clazz)
+    {
+        return (event) ->
         {
-            VisualChangeEvent visualEvent = new VisualChangeEvent(player);
-            Bukkit.getPluginManager().callEvent(visualEvent);
-        });
+            if (clazz.isAssignableFrom(event.getClass()) && event.getPlayerRank().getPlayer() instanceof Player player)
+            {
+                Bukkit.getScheduler()
+                      .runTask(InternalVisual.getPlugin(InternalVisual.class), () -> visualEvent(player));
+            }
+        };
     }
 
     @Override public void onEnable()
@@ -108,21 +151,17 @@ public class InternalVisual extends JavaPlugin implements Visual
             event.joinMessage(getMessage(true, event.getPlayer()));
         };
         EventListener<PlayerQuitEvent> quitEvent = (event) -> event.quitMessage(getMessage(false, event.getPlayer()));
-        EventListener<RankEvent> rankEvent = (event) -> callVisualChangeEvent(event.getRankTemplate());
-        EventListener<PlayerRankEvent> playerRankEvent = (event) ->
-        {
-            if (event.getPlayerRank().getPlayer() instanceof Player player)
-            {
-                callVisualChangeEvent(player);
-            }
-        };
         pluginManager.registerEvents(visualChangeEvent, this);
         pluginManager.registerEvents(chatEvent, this);
         pluginManager.registerEvents(joinEvent, this);
         pluginManager.registerEvents(quitEvent, this);
-        pluginManager.registerEvents(rankEvent, this);
-        pluginManager.registerEvents(playerRankEvent, this);
         pluginManager.registerEvents(new KissenSystemMessageListener(), this);
+
+        // rank events
+        EventListener<RankEvent> rankEvent = (event) -> callVisualChangeEvent(event.getRankTemplate());
+        pluginManager.registerEvents(rankEvent, this);
+        pluginManager.registerEvents(playerRankEvent(AsyncRankExpiredEvent.class), this);
+        pluginManager.registerEvents(playerRankEvent(RankGrantEvent.class), this);
 
         // commands
         pluginManager.registerCommand(this, new SuffixCommand(), new RankCommand());
@@ -156,13 +195,12 @@ public class InternalVisual extends JavaPlugin implements Visual
         this.saveConfig();
 
         // localization
-        String split = " " + "-".repeat(20) + " ";
-        pluginManager.registerTranslation("visual.tab.header",
-                new MessageFormat("- {0} - \nOnline Players: {1}/{2}\n" + split + "\n"),
-                this);
-        pluginManager.registerTranslation("visual.tab.footer",
-                new MessageFormat("\n " + split + "\nYour Ping: {0}ms"),
-                this);
+        String split = String.format(" %s ", "-".repeat(25));
+        MessageFormat header = new MessageFormat("- {0} - \nOnline Players: {1}/{2}\n" + split + "\n");
+        pluginManager.registerTranslation("visual.tab.header", header, this);
+
+        MessageFormat footer = new MessageFormat("\n " + split + "\nYour Ping: {0}ms");
+        pluginManager.registerTranslation("visual.tab.footer", footer, this);
     }
 
     @Override public void onDisable()
@@ -183,23 +221,30 @@ public class InternalVisual extends JavaPlugin implements Visual
     {
         if (entity instanceof Player player)
         {
-            return (VisualEntity<T>) player.getUser()
-                                           .getStorage()
-                                           .computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
+            Map<String, Object> storage = player.getUser().getStorage();
+            return (VisualEntity<T>) storage.computeIfAbsent("visual_data", (key) -> new KissenVisualPlayer(player));
         }
         return new KissenVisualEntity<>(entity);
     }
 
+    /**
+     * Triggers a visual change event for all online players with the specified rank.
+     *
+     * <p>This method iterates over all online players and filters them based on the given {@link Rank}.
+     * For each player whose rank matches the specified rank, a visual change event is triggered by calling
+     * the {@link InternalVisual#visualEvent(Player)} method.</p>
+     *
+     * <p>The filtering is done using a {@link Predicate} that checks if the player's rank source is equal
+     * to the specified rank. This ensures that only players with the exact matching rank will have their
+     * visual event triggered.</p>
+     *
+     * @param rank the rank to filter players by
+     * @throws NullPointerException if {@code rank} is null
+     */
     public void callVisualChangeEvent(@NotNull Rank rank)
     {
         Predicate<Player> hasRank = player -> Objects.equals(player.getRank().getSource(), rank);
-        Bukkit.getScheduler()
-              .runTask(InternalVisual.getPlugin(InternalVisual.class),
-                      () -> Bukkit.getOnlinePlayers().stream().filter(hasRank).forEach(player ->
-                      {
-                          VisualChangeEvent visualChangeEvent = new VisualChangeEvent(player);
-                          Bukkit.getPluginManager().callEvent(visualChangeEvent);
-                      }));
+        Bukkit.getOnlinePlayers().stream().filter(hasRank).forEach(InternalVisual::visualEvent);
     }
 
     /**
@@ -234,7 +279,8 @@ public class InternalVisual extends JavaPlugin implements Visual
      * Retrieves the personalized prefix for a given {@link ServerEntity}.
      *
      * <p>The {@code getPersonalisedPrefix} method checks if the provided {@link ServerEntity} is an instance of
-     * {@link PlayerClient} and retrieves the user-specific prefix using the {@link KissenSystemPrefix} user setting.
+     * {@link PlayerClient} and retrieves the user-specific prefix using the {@link KissenSystemPrefix} user
+     * setting.
      * If not a player, the default system prefix is obtained from the configuration.</p>
      *
      * @param serverEntity the {@link ServerEntity} for which the personalized prefix is retrieved
