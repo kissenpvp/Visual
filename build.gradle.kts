@@ -25,7 +25,7 @@ plugins {
 }
 
 group = "net.kissenpvp"
-version = "1.7.0-SNAPSHOT"
+version = "1.7.1-SNAPSHOT"
 
 configurations {
     create("includeLib")
@@ -49,7 +49,7 @@ allprojects {
 
     publishing {
         repositories {
-            maven("https://repo.kissenpvp.net/repository/maven-snapshots/") {
+            maven("https://repo.kissenpvp.net/snapshots") {
                 name = "kissenpvp"
                 credentials(PasswordCredentials::class)
             }

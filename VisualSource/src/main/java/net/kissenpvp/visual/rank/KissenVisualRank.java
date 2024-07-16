@@ -33,18 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
-
-    public KissenVisualRank(@NotNull Rank rank) {
-        this.rank = rank;
-        for (String key : List.of("color", "prefix", "suffix", "priority")) {
-            getRepository().applyHook(key, (d, value) -> callVisualChangeEvent());
-        }
-    }
 
     @NotNull
     private SavableMap getRepository() {
@@ -65,11 +57,13 @@ public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
     @Override
     public void setColor(@Nullable TextColor textColor) {
         getRepository().set("color", textColor);
+        callVisualChangeEvent();
     }
 
     @Override
     public void unsetColor() {
         setColor(null);
+        callVisualChangeEvent();
     }
 
     @Override
@@ -80,6 +74,7 @@ public record KissenVisualRank(@NotNull Rank rank) implements VisualRank {
     @Override
     public void setPrefix(@Nullable Component component) {
         getRepository().set("prefix", component);
+        callVisualChangeEvent();
     }
 
     @Override

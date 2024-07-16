@@ -25,12 +25,10 @@ import net.kissenpvp.core.api.database.savable.Savable;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.networking.client.entitiy.PlayerClient;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
+import net.kissenpvp.core.api.user.rank.event.AbstractRankEvent;
 import net.kissenpvp.pulvinar.api.networking.client.entity.PulvinarPlayerClient;
 import net.kissenpvp.pulvinar.api.user.rank.Rank;
-import net.kissenpvp.pulvinar.api.user.rank.event.AsyncRankExpiredEvent;
-import net.kissenpvp.pulvinar.api.user.rank.event.PlayerRankEvent;
-import net.kissenpvp.pulvinar.api.user.rank.event.RankEvent;
-import net.kissenpvp.pulvinar.api.user.rank.event.RankGrantEvent;
+import net.kissenpvp.pulvinar.api.user.rank.event.*;
 import net.kissenpvp.visual.api.Visual;
 import net.kissenpvp.visual.api.entity.VisualEntity;
 import net.kissenpvp.visual.api.entity.VisualPlayer;
@@ -130,8 +128,22 @@ public class InternalVisual extends JavaPlugin implements Visual
         {
             if (clazz.isAssignableFrom(event.getClass()) && event.getPlayerRank().getPlayer() instanceof Player player)
             {
-                Bukkit.getScheduler()
-                      .runTask(InternalVisual.getPlugin(InternalVisual.class), () -> visualEvent(player));
+                Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () -> visualEvent(player));
+            }
+        };
+    }
+
+    private <T extends AbstractRankEvent<Rank>> @NotNull EventListener<T> rankEvent(@NotNull Class<T> clazz)
+    {
+        return (event) ->
+        {
+            if (clazz.isAssignableFrom(event.getClass()))
+            {
+                Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () ->
+                {
+                    Rank rank = event.getRankTemplate();
+                    callVisualChangeEvent(rank);
+                });
             }
         };
     }
@@ -158,9 +170,9 @@ public class InternalVisual extends JavaPlugin implements Visual
         pluginManager.registerEvents(new KissenSystemMessageListener(), this);
 
         // rank events
-        EventListener<RankEvent> rankEvent = (event) -> callVisualChangeEvent(event.getRankTemplate());
-        pluginManager.registerEvents(rankEvent, this);
-        pluginManager.registerEvents(playerRankEvent(AsyncRankExpiredEvent.class), this);
+        pluginManager.registerEvents(rankEvent(RankPriorityChangeEvent.class), this);
+        pluginManager.registerEvents(rankEvent(PostAsyncRankDeleteEvent.class), this);
+        pluginManager.registerEvents(playerRankEvent(PostAsyncRankExpireEvent.class), this);
         pluginManager.registerEvents(playerRankEvent(RankGrantEvent.class), this);
 
         // commands
