@@ -26,6 +26,7 @@ version = rootProject.version
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
+    compileOnly("io.netty:netty-handler:4.1.68.Final")
 
     implementation(project(":VisualAPI"))
 }

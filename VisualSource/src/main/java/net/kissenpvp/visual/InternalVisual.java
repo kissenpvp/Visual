@@ -18,7 +18,9 @@
 
 package net.kissenpvp.visual;
 
+import io.netty.channel.Channel;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.event.player.PlayerTrackEntityEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.kissenpvp.core.api.database.savable.Savable;
@@ -57,6 +59,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -64,8 +67,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -128,7 +130,8 @@ public class InternalVisual extends JavaPlugin implements Visual
         {
             if (clazz.isAssignableFrom(event.getClass()) && event.getPlayerRank().getPlayer() instanceof Player player)
             {
-                Bukkit.getScheduler().runTask(InternalVisual.getPlugin(InternalVisual.class), () -> visualEvent(player));
+                Bukkit.getScheduler()
+                      .runTask(InternalVisual.getPlugin(InternalVisual.class), () -> visualEvent(player));
             }
         };
     }
@@ -157,8 +160,16 @@ public class InternalVisual extends JavaPlugin implements Visual
         // listener
         EventListener<VisualChangeEvent> visualChangeEvent = (event) -> getTabRender().update();
         EventListener<AsyncChatEvent> chatEvent = (event) -> event.renderer(kissenChatRenderer);
+        EventListener<PlayerTrackEntityEvent> login = (event) ->
+        {
+
+        };
+
         EventListener<PlayerJoinEvent> joinEvent = (event) ->
         {
+            Channel channel = event.getPlayer().getConnection();
+            channel.pipeline().addBefore("packet_handler", "tamed_animals_team_handler", new TamableAnimalsHandler());
+
             getTabRender().update();
             event.joinMessage(getMessage(true, event.getPlayer()));
         };
