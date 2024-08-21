@@ -50,7 +50,7 @@ allprojects {
     publishing {
         repositories {
             maven("https://repo.kissenpvp.net/snapshots") {
-                name = "kissenpvp"
+                name = "kissen"
                 credentials(PasswordCredentials::class)
             }
         }
