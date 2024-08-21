@@ -25,15 +25,23 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TamableAnimalsHandler extends ChannelDuplexHandler
 {
+    //TODO optimize by caching
     private static final String BUNDLE_PACKET = "ClientboundBundlePacket";
     private static final String ENTITY_DATA_PACKET = "ClientboundSetEntityDataPacket";
+
+    private static final ConcurrentHashMap<Class<?>, Method> subPacketsMethodCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, Method> packedItemsMethodCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, Field> valueFieldCache = new ConcurrentHashMap<>();
+
 
     /**
      * Handles a ClientboundBundlePacket packet by iterating over its sub-packets.
@@ -49,7 +57,20 @@ public class TamableAnimalsHandler extends ChannelDuplexHandler
     private static void processBundle(@NotNull Object msg) throws IllegalAccessException, NoSuchMethodException,
             InvocationTargetException
     {
-        for (Object subPacket : (Iterable<?>) msg.getClass().getMethod("subPackets").invoke(msg))
+        Method subPacketsMethod = subPacketsMethodCache.computeIfAbsent(msg.getClass(), clazz ->
+        {
+            try
+            {
+                return clazz.getMethod("subPackets");
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
+
+        Iterable<?> subPackets = (Iterable<?>) subPacketsMethod.invoke(msg);
+        for (Object subPacket : subPackets)
         {
             if (Objects.equals(subPacket.getClass().getSimpleName(), ENTITY_DATA_PACKET))
             {
@@ -74,15 +95,28 @@ public class TamableAnimalsHandler extends ChannelDuplexHandler
     private static void processEntityData(@NotNull Object msg) throws IllegalAccessException, NoSuchMethodException,
             InvocationTargetException
     {
-        ((List<?>) msg.getClass().getDeclaredMethod("packedItems").invoke(msg)).removeIf(dataValue ->
+        Method packedItemsMethod = packedItemsMethodCache.computeIfAbsent(msg.getClass(), clazz ->
+        {
+            try
+            {
+                return clazz.getDeclaredMethod("packedItems");
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
+
+        List<?> packedItems = (List<?>) packedItemsMethod.invoke(msg);
+        packedItems.removeIf(dataValue ->
         {
             try
             {
                 return isOwnerAttribute(dataValue);
             }
-            catch (NoSuchFieldException | IllegalAccessException operationException)
+            catch (NoSuchFieldException | IllegalAccessException e)
             {
-                throw new RuntimeException(operationException);
+                throw new RuntimeException(e);
             }
         });
     }
@@ -100,22 +134,37 @@ public class TamableAnimalsHandler extends ChannelDuplexHandler
     private static boolean isOwnerAttribute(@NotNull Object dataValue) throws NoSuchFieldException,
             IllegalAccessException
     {
-        Field valueField = dataValue.getClass().getDeclaredField("value");
-        valueField.setAccessible(true);
-        if (!(valueField.get(dataValue) instanceof Optional<?> optional))
+        Class<?> dataValueClass = dataValue.getClass();
+        Field valueField = valueFieldCache.computeIfAbsent(dataValueClass, cls ->
+        {
+            try
+            {
+                Field field = cls.getDeclaredField("value");
+                field.setAccessible(true);
+                return field;
+            }
+            catch (NoSuchFieldException noSuchFieldException)
+            {
+                throw new RuntimeException(noSuchFieldException);
+            }
+        });
+
+        Object value = valueField.get(dataValue);
+        if (!(value instanceof Optional<?> optional))
         {
             return false;
         }
 
-        boolean isUUID = optional.isPresent() && optional.get() instanceof UUID uuid;
-        valueField.setAccessible(false);
-        return isUUID;
+        return optional.isPresent() && optional.get() instanceof UUID;
     }
 
     @Override
-    public void write(@NotNull ChannelHandlerContext ctx, @NotNull Object msg, @NotNull ChannelPromise promise) throws Exception
+    public void write(@NotNull ChannelHandlerContext ctx,
+            @NotNull Object msg,
+            @NotNull ChannelPromise promise) throws Exception
     {
-        switch (msg.getClass().getSimpleName())
+        String simpleName = msg.getClass().getSimpleName();
+        switch (simpleName)
         {
             case BUNDLE_PACKET -> processBundle(msg);
             case ENTITY_DATA_PACKET -> processEntityData(msg);
