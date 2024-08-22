@@ -22,9 +22,7 @@ import net.kissenpvp.core.api.event.EventClass;
 import net.kissenpvp.core.api.event.EventListener;
 import net.kissenpvp.core.api.message.event.SystemMessageEvent;
 import net.kissenpvp.core.api.networking.client.entitiy.ServerEntity;
-import net.kissenpvp.visual.api.Visual;
 import net.kissenpvp.visual.api.entity.VisualEntity;
-import net.kissenpvp.visual.entity.KissenVisualEntity;
 import net.kissenpvp.visual.InternalVisual;
 import net.kissenpvp.visual.playersettings.KissenShowPrefix;
 import net.kyori.adventure.text.Component;
@@ -53,6 +51,7 @@ public class KissenSystemMessageListener implements EventListener<SystemMessageE
     @Override
     public void call(@NotNull SystemMessageEvent event) {
 
+        System.out.println("test");
         ServerEntity receiver = event.getReceiver();
         if (event.getReceiver() instanceof Player player && hidePrefix(event, player, receiver)) {
             return;

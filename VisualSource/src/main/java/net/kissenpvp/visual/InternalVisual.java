@@ -159,10 +159,6 @@ public class InternalVisual extends JavaPlugin implements Visual
         // listener
         EventListener<VisualChangeEvent> visualChangeEvent = (event) -> getTabRender().update();
         EventListener<AsyncChatEvent> chatEvent = (event) -> event.renderer(kissenChatRenderer);
-        EventListener<PlayerTrackEntityEvent> login = (event) ->
-        {
-
-        };
 
         EventListener<PlayerJoinEvent> joinEvent = (event) ->
         {
