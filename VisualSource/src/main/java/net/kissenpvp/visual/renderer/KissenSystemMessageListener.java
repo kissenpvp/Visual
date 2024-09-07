@@ -51,7 +51,6 @@ public class KissenSystemMessageListener implements EventListener<SystemMessageE
     @Override
     public void call(@NotNull SystemMessageEvent event) {
 
-        System.out.println("test");
         ServerEntity receiver = event.getReceiver();
         if (event.getReceiver() instanceof Player player && hidePrefix(event, player, receiver)) {
             return;
