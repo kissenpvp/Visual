@@ -3,7 +3,7 @@ package net.corwis.kissenpvp;
 import io.papermc.paper.chat.ChatRenderer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
@@ -12,9 +12,12 @@ import org.jetbrains.annotations.NotNull;
 public final class VisualChatRenderer implements ChatRenderer {
 
     private final VisualManager visualManager;
+    private final Visual plugin;
+    private final MiniMessage mm = MiniMessage.miniMessage();
 
-    public VisualChatRenderer(VisualManager visualManager) {
+    public VisualChatRenderer(VisualManager visualManager, Visual plugin) {
         this.visualManager = visualManager;
+        this.plugin = plugin;
     }
 
     @Override
@@ -28,8 +31,11 @@ public final class VisualChatRenderer implements ChatRenderer {
         Component prefix = (data != null && data.prefix() != null) ? data.prefix() : Component.empty();
         Component suffix = (data != null && data.suffix() != null) ? data.suffix() : Component.empty();
 
-        final Component splitter = Component.text("»", NamedTextColor.DARK_GRAY);
-        final Component name = sourceDisplayName.colorIfAbsent(NamedTextColor.AQUA);
+        Component splitter = mm.deserialize(plugin.getConfig().getString("chat.splitter", "»"));
+        Component name = mm.deserialize(plugin.getConfig().getString("chat.name-color", "<aqua>"))
+                .append(Component.text(source.getName()));
+        Component msg = mm.deserialize(plugin.getConfig().getString("chat.message-color", "<white>"))
+                .append(message);
 
         Component line = Component.empty()
                 .append(prefix)
@@ -38,22 +44,26 @@ public final class VisualChatRenderer implements ChatRenderer {
                 .appendSpace()
                 .append(splitter)
                 .appendSpace()
-                .append(message.colorIfAbsent(NamedTextColor.WHITE));
+                .append(msg);
 
         if (viewer instanceof Player target) {
-            if (!target.getUniqueId().equals(source.getUniqueId())) {
+            if (!target.equals(source)) {
+                String mentionColor = plugin.getConfig().getString("chat.mention-color", "<yellow>");
+                boolean playSound = plugin.getConfig().getBoolean("chat.mention-sound", true);
+
                 Component altered = line.replaceText(builder -> {
                     builder.match("@" + target.getName());
-                    builder.replacement(Component.text("@" + target.getName()).color(NamedTextColor.YELLOW));
+                    builder.replacement(mm.deserialize(mentionColor + "@" + target.getName()));
                 });
 
                 if (!altered.equals(line)) {
                     line = altered;
-                    target.playSound(target, Sound.ENTITY_ARROW_HIT_PLAYER, .5f, 1f);
+                    if (playSound) {
+                        target.playSound(target, Sound.ENTITY_ARROW_HIT_PLAYER, .5f, 1f);
+                    }
                 }
             }
         }
-
         return line;
     }
 }

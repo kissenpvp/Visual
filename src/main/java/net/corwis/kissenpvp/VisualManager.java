@@ -19,23 +19,19 @@ public class VisualManager {
     public void update(Player player, VisualData visualData) {
         if (player == null || visualData == null) return;
         data.put(player.getUniqueId(), visualData);
-
         setHeaderFooter(player, visualData.header(), visualData.footer());
         setTeam(player, visualData.prefix(), visualData.suffix(), visualData.priority());
     }
 
     public void remove(Player player) {
         if (player == null) return;
-
         player.sendPlayerListHeader(Component.empty());
         player.sendPlayerListFooter(Component.empty());
-
         Team team = teams.remove(player.getUniqueId());
         if (team != null) {
             team.removeEntry(player.getName());
             team.unregister();
         }
-
         data.remove(player.getUniqueId());
     }
 
@@ -54,22 +50,17 @@ public class VisualManager {
             oldTeam.removeEntry(player.getName());
             oldTeam.unregister();
         }
-
         String base = player.getName();
         String shortName = base.substring(0, Math.min(10, base.length()));
         String teamName = String.format("%03d_%s", Math.max(0, Math.min(999, priority)), shortName);
-
         Team team = board.getTeam(teamName);
         if (team == null) {
             team = board.registerNewTeam(teamName);
         }
-
         if (prefix != null) team.prefix(prefix);
         if (suffix != null) team.suffix(suffix);
-
         team.addEntry(player.getName());
         teams.put(player.getUniqueId(), team);
-        
         player.setScoreboard(board);
     }
 }
