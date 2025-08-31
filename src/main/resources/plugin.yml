@@ -1,4 +1,4 @@
-name: RankSystem
+name: Visual
 version: '1.0-SNAPSHOT'
-main: net.kissenpvp.visual.Visual
+main: net.corwis.kissenpvp.Visual
 api-version: '1.21'
