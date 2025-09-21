@@ -46,21 +46,19 @@ public final class VisualChatRenderer implements ChatRenderer {
                 .appendSpace()
                 .append(msg);
 
-        if (viewer instanceof Player target) {
-            if (!target.equals(source)) {
-                String mentionColor = plugin.getConfig().getString("chat.mention-color", "<yellow>");
-                boolean playSound = plugin.getConfig().getBoolean("chat.mention-sound", true);
+        if (viewer instanceof Player target && !target.equals(source)) {
+            String mentionColor = plugin.getConfig().getString("chat.mention-color", "<yellow>");
+            boolean playSound = plugin.getConfig().getBoolean("chat.mention-sound", true);
 
-                Component altered = line.replaceText(builder -> {
-                    builder.match("@" + target.getName());
-                    builder.replacement(mm.deserialize(mentionColor + "@" + target.getName()));
-                });
+            Component altered = line.replaceText(builder -> {
+                builder.match(target.getName());
+                builder.replacement(mm.deserialize(mentionColor + "@" + target.getName()));
+            });
 
-                if (!altered.equals(line)) {
-                    line = altered;
-                    if (playSound) {
-                        target.playSound(target, Sound.ENTITY_ARROW_HIT_PLAYER, .5f, 1f);
-                    }
+            if (!altered.equals(line)) {
+                line = altered;
+                if (playSound) {
+                    target.playSound(target, Sound.ENTITY_ARROW_HIT_PLAYER, .5f, 1f);
                 }
             }
         }
