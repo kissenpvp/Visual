@@ -6,8 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public final class VisualChatRenderer implements ChatRenderer {
 
@@ -21,11 +20,7 @@ public final class VisualChatRenderer implements ChatRenderer {
     }
 
     @Override
-    @Contract(value = "_, _, _, _ -> new")
-    public @NotNull Component render(@NotNull Player source,
-                                     @NotNull Component sourceDisplayName,
-                                     @NotNull Component message,
-                                     @NotNull Audience viewer) {
+    public @NonNull Component render(@NonNull Player source, @NonNull Component sourceDisplayName, @NonNull Component message, @NonNull Audience viewer) {
 
         VisualData data = visualManager.get(source);
         Component prefix = (data != null && data.prefix() != null) ? data.prefix() : Component.empty();
