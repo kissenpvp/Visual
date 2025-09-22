@@ -1,6 +1,8 @@
 package net.corwis.kissenpvp;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.corwis.kissenpvp.rank.VisualRankRepository;
+import net.corwis.kissenpvp.suffix.VisualSuffixRepository;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
@@ -14,6 +16,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.sql.DataSource;
+import java.util.function.Supplier;
+
 public final class Visual extends JavaPlugin implements Listener {
 
     private static final GsonComponentSerializer serializer = GsonComponentSerializer.gson();
@@ -26,6 +31,14 @@ public final class Visual extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        Supplier<IllegalStateException> noConnection = ()  -> new IllegalStateException("Pulvinar connection provider is null");
+        DataSource dataSource = Bukkit.getPulvinar().connectionProvider().dataSource().orElseThrow(noConnection);
+
+        VisualRankRepository visualRankRepository = new VisualRankRepository(dataSource);
+        VisualSuffixRepository visualSuffixRepository = new VisualSuffixRepository(dataSource);
+
+
+
         this.mm = MiniMessage.miniMessage();
         saveDefaultConfig();
 
@@ -33,6 +46,7 @@ public final class Visual extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         applyVisualsToOnlinePlayers();
+
     }
 
     @Override
