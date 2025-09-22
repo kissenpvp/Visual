@@ -2,6 +2,7 @@ package net.corwis.kissenpvp;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,8 +16,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Visual extends JavaPlugin implements Listener {
 
+    private static final GsonComponentSerializer serializer = GsonComponentSerializer.gson();
     private VisualManager visualManager;
     private MiniMessage mm;
+
+    public static GsonComponentSerializer serializer() {
+        return serializer;
+    }
 
     @Override
     public void onEnable() {
@@ -53,11 +59,11 @@ public final class Visual extends JavaPlugin implements Listener {
     }
 
     public VisualData buildVisualDataFromConfig(FileConfiguration cfg) {
-        String prefix  = cfg.getString("visuals.prefix", "<gray>[<gradient:gray:dark_gray>Spieler</gradient>] ");
-        String suffix  = cfg.getString("visuals.suffix", "");
-        int    prio    = cfg.getInt("visuals.priority", 100);
-        String header  = cfg.getString("visuals.header", "<green>Willkommen auf KissenPvP!");
-        String footer  = cfg.getString("visuals.footer", "<gray>Du bist <b>Spieler</b>.");
+        String prefix = cfg.getString("visuals.prefix", "<gray>[<gradient:gray:dark_gray>Spieler</gradient>] ");
+        String suffix = cfg.getString("visuals.suffix", "");
+        int prio = cfg.getInt("visuals.priority", 100);
+        String header = cfg.getString("visuals.header", "<green>Willkommen auf KissenPvP!");
+        String footer = cfg.getString("visuals.footer", "<gray>Du bist <b>Spieler</b>.");
 
         return new VisualData(
                 mm.deserialize(prefix),
