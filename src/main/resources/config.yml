@@ -6,6 +6,7 @@ visuals:
   footer: "<gray>Du bist <b>Spieler</b>."
 
 chat:
+  system-message-format: "<gradient:%s:%s>System</gradient> <gray>»</gray> %message%"
   enabled: true
   mention-sound: true
   mention-color: "<yellow>"

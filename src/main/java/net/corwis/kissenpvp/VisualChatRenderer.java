@@ -3,6 +3,7 @@ package net.corwis.kissenpvp;
 import io.papermc.paper.chat.ChatRenderer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -27,13 +28,13 @@ public final class VisualChatRenderer implements ChatRenderer {
         Component suffix = (data != null && data.suffix() != null) ? data.suffix() : Component.empty();
 
         Component splitter = mm.deserialize(plugin.getConfig().getString("chat.splitter", "»"));
-        Component name = mm.deserialize(plugin.getConfig().getString("chat.name-color", "<aqua>"))
-                .append(Component.text(source.getName()));
+        Component name = Component.text(source.getName()).color(NamedTextColor.GRAY);
         Component msg = mm.deserialize(plugin.getConfig().getString("chat.message-color", "<white>"))
                 .append(message);
 
         Component line = Component.empty()
                 .append(prefix)
+                .appendSpace()
                 .append(name)
                 .append(suffix)
                 .appendSpace()
