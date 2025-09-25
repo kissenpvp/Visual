@@ -1,18 +1,8 @@
 visuals:
-  prefix: "<gray>[<gradient:gray:dark_gray>Spieler</gradient>]"
-  suffix: ""
-  priority: 100
-  header: "<red>Willkommen auf KissenPvP!"
-  footer: "<gray>Du bist <b>Spieler</b>."
+  header: '<red>Willkommen auf KissenPvP!'
+  footer: '<gray>Du bist <b>Spieler</b>.'
 
 chat:
-  enabled: true
+  # Mentions
+  mention-enabled: true
   mention-sound: true
-  mention-color: "<yellow>"
-  splitter: "»"
-  name-color: "<aqua>"
-  message-color: "<white>"
-
-messages:
-  reload-success: "<gradient:#FF5E5E:#FFE300>ᴠɪꜱᴜᴀʟ</gradient> <gray>Konfiguration neu geladen.</gray>"
-  no-permission: "<gradient:#FF5E5E:#FFE300>ᴠɪꜱᴜᴀʟ</gradient> <red>Keine Berechtigung.</red>"

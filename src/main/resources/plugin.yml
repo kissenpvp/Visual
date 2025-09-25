@@ -1,14 +1,5 @@
 name: Visual
 version: 1.0
-main: net.corwis.kissenpvp.main.Visual
+main: net.corwis.kissenpvp.Visual
 author: Corwis
 api-version: '1.21'
-commands:
-  visual:
-    description: Visual-Command
-    usage: /visual reload
-    permission: visual.reload
-permissions:
-  visual.reload:
-    description: Reload the config
-    default: op
