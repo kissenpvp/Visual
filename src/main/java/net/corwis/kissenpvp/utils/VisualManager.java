@@ -1,5 +1,6 @@
-package net.corwis.kissenpvp;
+package net.corwis.kissenpvp.utils;
 
+import net.corwis.kissenpvp.VisualData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

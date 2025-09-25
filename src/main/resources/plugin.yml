@@ -1,6 +1,6 @@
 name: Visual
 version: 1.0
-main: net.corwis.kissenpvp.Visual
+main: net.corwis.kissenpvp.main.Visual
 author: Corwis
 api-version: '1.21'
 commands:
