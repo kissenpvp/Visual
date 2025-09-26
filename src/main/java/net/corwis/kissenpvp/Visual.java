@@ -1,16 +1,22 @@
 package net.corwis.kissenpvp;
 
 import net.corwis.kissenpvp.chat.VisualListener;
+import net.corwis.kissenpvp.tab.TabListManager;
+import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NonNull;
 
-public final class Visual extends JavaPlugin {
+import java.util.Optional;
 
-    private final VisualConfig visualConfig;
+public final class Visual extends JavaPlugin implements Listener {
 
-    public Visual() {
-        visualConfig = new VisualConfig();
-    }
+    private VisualConfig visualConfig;
+    private TabListManager tabListManager;
 
     public @NonNull VisualConfig config()
     {
@@ -19,11 +25,29 @@ public final class Visual extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        visualConfig = new VisualConfig();
+        tabListManager = new TabListManager();
         saveDefaultConfig();
 
         visualConfig.loadConfig();
 
         // Events
         getServer().getPluginManager().registerEvents(new VisualListener(), this);
+        getServer().getPluginManager().registerEvents(this, this);
     }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event)
+    {
+        tabListManager.decorate(visualConfig.header(), visualConfig.footer());
+    }
+
+    @Contract("_ -> new")
+    public @NonNull VisualPlayer playerData(@NonNull Player player)
+    {
+        return new VisualPlayer(Component.text("Player").appendSpace(), Optional.empty(), 0);
+    }
+
+    public record VisualPlayer(@NonNull Component prefix, @NonNull Optional<Component> suffix, int priority)
+    {}
 }

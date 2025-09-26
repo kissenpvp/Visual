@@ -1,6 +1,6 @@
 visuals:
-  header: '<red>Willkommen auf KissenPvP!'
-  footer: '<gray>Du bist <b>Spieler</b>.'
+  header: '<gray>-</gray> <gradient:green:dark_green>KissenPvP</gradient> <gray>-</gray><newline><gray>Online Players: <green>1</green>/<green>10</green></gray><newline><gray>------------------------------</gray><newline> '
+  footer: ' <newline><gray>------------------------------</gray><newline><gradient:green:dark_green>Have fun</gradient>'
 
 chat:
   # Mentions

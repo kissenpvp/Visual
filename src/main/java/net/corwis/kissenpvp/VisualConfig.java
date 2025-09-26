@@ -23,8 +23,8 @@ public class VisualConfig {
     public void loadConfig() {
         MiniMessage miniMessage = MiniMessage.miniMessage();
 
-        String headerString = config.getString("visuals.header", "<green>Willkommen auf KissenPvP!");
-        String footerString = config.getString("visuals.footerString", "<gray>Du bist <b>Spieler</b>.");
+        String headerString = config.getString("visuals.header", "<gray>-</gray> <gradient:green:dark_green>KissenPvP</gradient> <gray>-</gray><newline><gray>Online Players: <green>1</green>/<green>10</green></gray><newline><gray>------------------------------</gray><newline> ");
+        String footerString = config.getString("visuals.footer", " <newline><gray>------------------------------</gray><newline><gradient:green:dark_green>Have fun</gradient>");
 
         header = miniMessage.deserialize(headerString);
         footer = miniMessage.deserialize(footerString);
