@@ -7,10 +7,15 @@ group = 'net.kissenpvp.visual'
 version = '1.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
+    }
+    maven {
+        name = "kissen-repo"
+        url = uri("https://repo.kissenpvp.net/snapshots")
     }
     maven {
         name = "sonatype"
@@ -19,8 +24,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
-    // Adventure is included with Paper, so compileOnly is enough via Paper API
+    compileOnly("net.kissenpvp.pulvinar:pulvinar-api:1.21.8-R0.1-SNAPSHOT")
+    implementation("net.kyori:adventure-text-serializer-gson:4.24.0")
 }
 
 tasks {
