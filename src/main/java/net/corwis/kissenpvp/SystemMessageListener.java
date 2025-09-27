@@ -12,7 +12,7 @@ public class SystemMessageListener implements Listener
     public void onSystemMessage(@NonNull SystemMessageEvent event)
     {
         DefaultTheme defaultTheme = new DefaultTheme();
-        event.setMessage(Visual.getPlugin(Visual.class).appendPrefix(defaultTheme.style(event.getMessage())));
+        event.setMessage(defaultTheme.style(event.getMessage()));
     }
 
 }

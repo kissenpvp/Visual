@@ -1,4 +1,4 @@
-package net.corwis.kissenpvp.tab;
+package net.corwis.kissenpvp.renderer;
 
 import net.corwis.kissenpvp.Visual;
 import net.kyori.adventure.text.Component;

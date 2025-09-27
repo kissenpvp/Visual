@@ -1,4 +1,4 @@
-package net.corwis.kissenpvp.chat;
+package net.corwis.kissenpvp.renderer;
 
 import io.papermc.paper.chat.ChatRenderer;
 import net.corwis.kissenpvp.Visual;
