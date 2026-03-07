@@ -9,15 +9,5 @@ import java.util.UUID;
 
 public record VisualSuffix(@NonNull String id, @NonNull UUID playerId, @NonNull Component content) implements PersistableEntity<String>
 {
-    @Override
-    public int signature()
-    {
-        return Objects.hash(content);
-    }
 
-    @Override
-    public boolean unsaved()
-    {
-        return false;
-    }
 }

@@ -10,13 +10,4 @@ import java.util.Optional;
 
 public record VisualRank(@NonNull String id, @NonNull Component prefix, @NonNull Optional<Component> suffix, @NonNull TextColor chatColor) implements PersistableEntity<String> {
 
-    @Override
-    public int signature() {
-        return Objects.hash(prefix, suffix, chatColor);
-    }
-
-    @Override
-    public boolean unsaved() {
-        return false;
-    }
 }

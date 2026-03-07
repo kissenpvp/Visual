@@ -5,6 +5,7 @@ import net.kissenpvp.api.database.KissenRepository;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import org.bukkit.Bukkit;
 import org.jspecify.annotations.NonNull;
 
 import javax.sql.DataSource;
@@ -40,7 +41,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
     @Override public @NonNull CompletableFuture<@NonNull Optional<VisualRank>> find(@NonNull String id) throws NullPointerException
     {
         String sql = "SELECT prefix, suffix, color FROM ksvi_visual_rank WHERE id = ?;";
-        return CompletableFuture.supplyAsync(() -> Objects.requireNonNull(query(sql, statement ->
+        return Bukkit.getPulvinar().databaseQueue().submit(() -> Objects.requireNonNull(query(sql, statement ->
         {
             statement.setString(1, id);
             try (ResultSet resultSet = statement.executeQuery())
@@ -59,7 +60,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
     {
         String placeholders = String.join(", ", Collections.nCopies(computeIterableSize(ids), "?"));
         String sql = "SELECT id, prefix, suffix, color FROM ksvi_visual_rank IN (" + placeholders +");";
-        return CompletableFuture.supplyAsync(() -> Objects.requireNonNull(query(sql, statement ->
+        return Bukkit.getPulvinar().databaseQueue().submit(() -> Objects.requireNonNull(query(sql, statement ->
         {
 
             int index = 1;
@@ -83,7 +84,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
     @Override public @NonNull CompletableFuture<@NonNull Collection<VisualRank>> findAll()
     {
         String sql = "SELECT id, prefix, suffix, color FROM ksvi_visual_rank;";
-        return CompletableFuture.supplyAsync(() -> Objects.requireNonNull(query(sql, statement ->
+        return Bukkit.getPulvinar().databaseQueue().submit(() -> Objects.requireNonNull(query(sql, statement ->
         {
             Collection<VisualRank> ranks = new HashSet<>();
             try (ResultSet resultSet = statement.executeQuery())
@@ -100,7 +101,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
     @Override public @NonNull CompletableFuture<Boolean> has(@NonNull String id) throws NullPointerException
     {
         String sql = "SELECT id FROM ksvi_visual_rank WHERE id = ?;";
-        return CompletableFuture.supplyAsync(() -> query(sql, statement ->
+        return Bukkit.getPulvinar().databaseQueue().submit(() -> query(sql, statement ->
         {
             statement.setString(1, id);
             try(ResultSet resultSet = statement.executeQuery())
@@ -113,7 +114,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
     @Override
     public @NonNull CompletableFuture<Void> saveAll(@NonNull Iterable<VisualRank> iterable) throws NullPointerException {
         String sql = "INSERT INTO ksvi_visual_rank (id, prefix, suffix, color) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE prefix = ?, suffix = ?, color = ?;";
-        return CompletableFuture.supplyAsync(() -> query(sql, (statement) -> {
+        return Bukkit.getPulvinar().databaseQueue().submit(() -> query(sql, (statement) -> {
             for(VisualRank rank : iterable)
             {
                 statement.setString(1, rank.id());
