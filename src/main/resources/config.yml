@@ -4,5 +4,6 @@ visuals:
 
 chat:
   # Mentions
+  system-message-prefix: '<gradient:yellow:gold>KissenPvP</gradient> <gray>»</gray> '
   mention-enabled: true
   mention-sound: true

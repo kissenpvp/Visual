@@ -23,7 +23,7 @@ public class TabListManager {
             Visual.VisualPlayer currentData = Visual.getPlugin(Visual.class).playerData(current);
             Team team = scoreboard.registerNewTeam(current.getUniqueId().toString());
 
-            team.prefix(Objects.requireNonNull(currentData.prefix()));
+            currentData.prefix().ifPresent(team::prefix);
             currentData.suffix().ifPresent(team::suffix);
 
             team.addEntity(current);

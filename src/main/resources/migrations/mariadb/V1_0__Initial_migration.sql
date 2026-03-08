@@ -8,10 +8,4 @@ CREATE TABLE IF NOT EXISTS ksvi_visual_rank
     FOREIGN KEY (id) REFERENCES ksvp_rank(id)
 );
 
-CREATE TABLE IF NOT EXISTS ksvi_visual_suffix(
-    id VARCHAR(20) NOT NULL,
-    player_id VARCHAR(36) NOT NULL,
-    content JSON NOT NULL,
-    PRIMARY KEY(id, player_id),
-    FOREIGN KEY (player_id) REFERENCES ksvp_player(id)
-);
+CREATE TABLE IF NOT EXISTS ksvi_visual_suffix(id VARCHAR(20) NOT NULL, player_id VARCHAR(36) NOT NULL, content JSON NOT NULL, PRIMARY KEY(id, player_id), FOREIGN KEY (player_id) REFERENCES ksvp_player(id));

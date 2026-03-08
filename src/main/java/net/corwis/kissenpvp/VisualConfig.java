@@ -13,6 +13,8 @@ public class VisualConfig {
     private boolean mentionsEnabled;
     private boolean mentionSoundEnabled;
 
+    private Component systemPrefix;
+
     private boolean loaded;
 
     public VisualConfig() {
@@ -28,6 +30,9 @@ public class VisualConfig {
 
         header = miniMessage.deserialize(headerString);
         footer = miniMessage.deserialize(footerString);
+
+        String prefixString = config.getString("chat.system-message-prefix", "<gradient:yellow:gold>KissenPvP</gradient> <gray>»</gray> ");
+        systemPrefix = miniMessage.deserialize(prefixString);
 
         mentionsEnabled = config.getBoolean("visuals.mention-enabled", true);
         mentionSoundEnabled = config.getBoolean("visuals.mention-sound", true);
@@ -47,6 +52,11 @@ public class VisualConfig {
         verify();
 
         return footer;
+    }
+
+    public @NonNull Component systemPrefix()
+    {
+        return systemPrefix;
     }
 
     public boolean mentionsEnabled() throws IllegalStateException

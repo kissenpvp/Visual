@@ -1,5 +1,6 @@
 package net.corwis.kissenpvp.rank;
 
+import com.google.common.base.Preconditions;
 import net.corwis.kissenpvp.Visual;
 import net.kissenpvp.api.database.KissenRepository;
 import net.kyori.adventure.text.Component;
@@ -20,10 +21,10 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
         super(dataSource);
     }
 
-    private static @NonNull VisualRank toVisualRank(@NonNull String id, @NonNull ResultSet resultSet) throws SQLException, NullPointerException
+    private static @NonNull VisualRank toVisualRank(@NonNull String id, @NonNull ResultSet resultSet) throws SQLException
     {
-        Objects.requireNonNull(id, "id is null");
-        Objects.requireNonNull(resultSet, "resultSet is null");
+        Preconditions.checkNotNull(id, "Id cannot be null!");
+        Preconditions.checkNotNull(resultSet, "resultSet cannot be null!");
 
         Component prefix = Visual.serializer().deserialize(resultSet.getString("prefix"));
         String suffixData = resultSet.getString("suffix");
@@ -38,7 +39,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
         return new VisualRank(id, prefix, suffix, color);
     }
 
-    @Override public @NonNull CompletableFuture<@NonNull Optional<VisualRank>> find(@NonNull String id) throws NullPointerException
+    @Override public @NonNull CompletableFuture<@NonNull Optional<VisualRank>> find(@NonNull String id)
     {
         String sql = "SELECT prefix, suffix, color FROM ksvi_visual_rank WHERE id = ?;";
         return Bukkit.getPulvinar().databaseQueue().submit(() -> Objects.requireNonNull(query(sql, statement ->
@@ -113,7 +114,7 @@ public class VisualRankRepository extends KissenRepository<String, VisualRank> {
 
     @Override
     public @NonNull CompletableFuture<Void> saveAll(@NonNull Iterable<VisualRank> iterable) throws NullPointerException {
-        String sql = "INSERT INTO ksvi_visual_rank (id, prefix, suffix, color) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE prefix = ?, suffix = ?, color = ?;";
+        String sql = "INSERT INTO ksvi_visual_rank (id, prefix, suffix, color) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE prefix = ?, suffix = ?, color = ?;";
         return Bukkit.getPulvinar().databaseQueue().submit(() -> query(sql, (statement) -> {
             for(VisualRank rank : iterable)
             {
