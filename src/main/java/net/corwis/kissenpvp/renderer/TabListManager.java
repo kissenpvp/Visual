@@ -33,5 +33,43 @@ public class TabListManager {
             current.sendPlayerListFooter(footer);
         }
     }
+
+    /**
+     * Converts a non-negative priority value into an alphabetic representation
+     * using a base-26 alphabet ({@code A-Z}).
+     *
+     * <p>The conversion maps values as follows:
+     * <pre>
+     * 0  -> A
+     * 1  -> B
+     * 25 -> Z
+     * 26 -> BA
+     * 27 -> BB
+     * </pre>
+     *
+     * <p>The resulting string is ordered similarly to a positional number system,
+     * where each "digit" is represented by an uppercase letter from {@code A} to
+     * {@code Z}.
+     *
+     * @param priority the priority value to convert; must be non-negative
+     * @return the alphabetic representation of the given priority
+     * @throws IllegalArgumentException if {@code priority} is negative
+     */
+    private static @NonNull String priorityToAlphabetic(int priority)
+    {
+        if (priority < 0) {
+            throw new IllegalArgumentException("Priority must be >= 0");
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        do {
+            int remainder = priority % 26;
+            result.append((char) ('A' + remainder));
+            priority /= 26;
+        } while (priority > 0);
+
+        return result.reverse().toString();
+    }
 }
 

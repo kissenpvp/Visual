@@ -84,7 +84,7 @@ public final class Visual extends JavaPlugin implements Listener {
         String ksviRank = "CREATE TABLE IF NOT EXISTS ksvi_visual_rank (id VARCHAR(20) NOT NULL, prefix JSON NOT NULL, suffix JSON NULL DEFAULT NULL, color INT NOT NULL, PRIMARY KEY (id), FOREIGN KEY (id) REFERENCES kissenpvp.ksvp_rank(id));";
         try(PreparedStatement statement = connection.prepareStatement(ksviRank)) { statement.executeUpdate(); }
 
-        String ksviSuffix = "CREATE TABLE IF NOT EXISTS ksvi_visual_suffix(id VARCHAR(20) NOT NULL, player_id UUID NOT NULL, content JSON NOT NULL, PRIMARY KEY(id, player_id), FOREIGN KEY (player_id) REFERENCES kissenpvp.ksvp_player(id));";
+        String ksviSuffix = "CREATE TABLE IF NOT EXISTS ksvi_visual_suffix(id VARCHAR(20) NOT NULL, player_id UUID NOT NULL, content JSON NOT NULL, PRIMARY KEY(id, player_id), FOREIGN KEY (player_id) REFERENCES ksvp_player(id));";
         try(PreparedStatement statement = connection.prepareStatement(ksviSuffix)) { statement.executeUpdate(); }
 
         String ksviSuffixSubscription = "CREATE TABLE IF NOT EXISTS ksvi_visual_suffix_subscription(suffix_id VARCHAR(20) NOT NULL, player_id UUID NOT NULL, PRIMARY KEY(suffix_id, player_id), FOREIGN KEY (suffix_id) REFERENCES ksvi_visual_suffix(id), FOREIGN KEY (player_id) REFERENCES kissenpvp.ksvp_player(id));";
